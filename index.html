@@ -2,16 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aquascape Log</title>
 
-<script>
-  /* ============================================================
-     SETTINGS — the only thing in this file you need to edit.
-
-     Leave as-is to run without sign-in.
-     To turn sign-in on, paste your Google OAuth client ID here.
-     ============================================================ */
-  window.CLIENT_ID = "";
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -321,9 +312,9 @@
 (function () {
   "use strict";
 
-  // Set at the top of this file. Empty means sign-in is off.
-  var CLIENT_ID = (window.CLIENT_ID || "").trim();
-  var AUTH_ON = CLIENT_ID.indexOf("apps.googleusercontent.com") !== -1;
+  // Fetched from /api/config at boot, so it lives only in Vercel's env vars.
+  var CLIENT_ID = "";
+  var AUTH_ON = false;
   var TOKEN_KEY = "aqualog:idt";
 
   var idToken = null;
@@ -1931,7 +1922,15 @@
       callback: function (resp) {
         idToken = resp.credential;
         try { sessionStorage.setItem(TOKEN_KEY, idToken); } catch (err) {}
-        start();
+        // Ask the server whether sign-in is configured, then start.
+  fetch("/api/config")
+    .then(function (r) { return r.json(); })
+    .then(function (cfg) {
+      CLIENT_ID = String(cfg.clientId || "").trim();
+      AUTH_ON = CLIENT_ID.indexOf("apps.googleusercontent.com") !== -1;
+    })
+    .catch(function () { AUTH_ON = false; })
+    .then(function () { start(); });
       }
     });
     var host = document.getElementById("gbtn");
@@ -1976,7 +1975,15 @@
     });
   }
 
-  start();
+  // Ask the server whether sign-in is configured, then start.
+  fetch("/api/config")
+    .then(function (r) { return r.json(); })
+    .then(function (cfg) {
+      CLIENT_ID = String(cfg.clientId || "").trim();
+      AUTH_ON = CLIENT_ID.indexOf("apps.googleusercontent.com") !== -1;
+    })
+    .catch(function () { AUTH_ON = false; })
+    .then(function () { start(); });
 
 })();
 </script>
