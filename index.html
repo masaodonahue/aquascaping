@@ -363,7 +363,7 @@
 
   // Bump on every push. Shown in Reference so "which build are you on" is a
   // question with an answer instead of a guess.
-  var BUILD = "2026-08-02k";
+  var BUILD = "2026-08-02n";
 
   var UI_KEY = "aqualog:ui";
   var QUEUE_KEY = "aqualog:queue";
@@ -413,7 +413,8 @@
     { id: "hardscape", label: "Hardscape", done: "Hardscape cleaned" },
     { id: "co2_refill", label: "CO₂ refill", done: "CO₂ cylinder refilled" },
     { id: "purigen_regen", label: "Purigen regen", done: "Purigen regenerated" },
-    { id: "purigen_replace", label: "Purigen swap", done: "Purigen replaced" }
+    { id: "purigen_replace", label: "Purigen swap", done: "Purigen replaced" },
+    { id: "checker_fluid", label: "Checker fluid", done: "Drop checker fluid replaced" }
   ];
 
   var SETTINGS = [
@@ -424,7 +425,8 @@
   var CADENCE = [
     { key: "cadence_water_change", label: "Water change", def: 7 },
     { key: "cadence_glass", label: "Glass", def: 14 },
-    { key: "cadence_iodine", label: "Iodine", def: 28 }
+    { key: "cadence_iodine", label: "Iodine", def: 28 },
+    { key: "cadence_checker_fluid", label: "Checker fluid", def: 14 }
   ];
 
   var ICONS = {
@@ -445,22 +447,22 @@
 
   var PLANTS = [
     // --- carpets and foreground ---
-    { key: "micranthemum_tweediei", name: "Micranthemum tweediei", alias: ["monte carlo", "micranthemum monte carlo", "mc"] },
-    { key: "hemianthus_callitrichoides", name: "Hemianthus callitrichoides 'Cuba'", alias: ["hc cuba", "dwarf baby tears", "hemianthus cuba"] },
-    { key: "eleocharis_acicularis_mini", name: "Eleocharis acicularis 'Mini'", alias: ["dwarf hairgrass mini", "hairgrass mini", "eleocharis mini"] },
-    { key: "eleocharis_parvula", name: "Eleocharis parvula", alias: ["dwarf hairgrass", "hairgrass"] },
-    { key: "utricularia_graminifolia", name: "Utricularia graminifolia", alias: ["ug"] },
-    { key: "glossostigma_elatinoides", name: "Glossostigma elatinoides", alias: ["glosso"] },
-    { key: "marsilea_hirsuta", name: "Marsilea hirsuta", alias: ["dwarf four leaf clover", "marsilea"] },
-    { key: "hydrocotyle_tripartita", name: "Hydrocotyle tripartita 'Japan'", alias: ["hydrocotyle japan", "japanese clover"] },
-    { key: "helanthium_tenellum", name: "Helanthium tenellum", alias: ["echinodorus tenellus", "pygmy chain sword", "tenellus"] },
+    { key: "micranthemum_tweediei", name: "Micranthemum tweediei", common: "Monte Carlo", alias: ["monte carlo", "micranthemum monte carlo", "mc"] },
+    { key: "hemianthus_callitrichoides", name: "Hemianthus callitrichoides 'Cuba'", common: "Dwarf Baby Tears", alias: ["hc cuba", "dwarf baby tears", "hemianthus cuba"] },
+    { key: "eleocharis_acicularis_mini", name: "Eleocharis acicularis 'Mini'", common: "Dwarf Hairgrass Mini", alias: ["dwarf hairgrass mini", "hairgrass mini", "eleocharis mini"] },
+    { key: "eleocharis_parvula", name: "Eleocharis parvula", common: "Dwarf Hairgrass", alias: ["dwarf hairgrass", "hairgrass"] },
+    { key: "utricularia_graminifolia", name: "Utricularia graminifolia", common: "UG", alias: ["ug"] },
+    { key: "glossostigma_elatinoides", name: "Glossostigma elatinoides", common: "Glosso", alias: ["glosso"] },
+    { key: "marsilea_hirsuta", name: "Marsilea hirsuta", common: "Dwarf Clover", alias: ["dwarf four leaf clover", "marsilea"] },
+    { key: "hydrocotyle_tripartita", name: "Hydrocotyle tripartita 'Japan'", common: "Japanese Clover", alias: ["hydrocotyle japan", "japanese clover"] },
+    { key: "helanthium_tenellum", name: "Helanthium tenellum", common: "Pygmy Chain Sword", alias: ["echinodorus tenellus", "pygmy chain sword", "tenellus"] },
   
     // --- midground ---
     { key: "staurogyne_repens", name: "Staurogyne repens", alias: ["repens", "staurogyne"] },
     { key: "cryptocoryne_parva", name: "Cryptocoryne parva", alias: ["crypt parva"] },
     { key: "cryptocoryne_wendtii", name: "Cryptocoryne wendtii", alias: ["crypt wendtii"] },
     { key: "cryptocoryne_lutea", name: "Cryptocoryne lutea", alias: ["crypt lutea"] },
-    { key: "pogostemon_helferi", name: "Pogostemon helferi", alias: ["downoi"] },
+    { key: "pogostemon_helferi", name: "Pogostemon helferi", common: "Downoi", alias: ["downoi"] },
     { key: "blyxa_japonica", name: "Blyxa japonica", alias: ["blyxa"] },
     { key: "blyxa_novoguineensis", name: "Blyxa novoguineensis", alias: [] },
     { key: "alternanthera_reineckii_mini", name: "Alternanthera reineckii 'Mini'", alias: ["ar mini", "alternanthera mini"] },
@@ -470,33 +472,33 @@
     { key: "hygrophila_serpyllum", name: "Hygrophila serpyllum", alias: ["serpyllum"] },
   
     // --- stems and background ---
-    { key: "rotala_rotundifolia_hra", name: "Rotala rotundifolia 'H'ra'", alias: ["rotala hra", "rotala h ra", "rotala sp hra", "hra", "rotala vietnam hra"] },
+    { key: "rotala_rotundifolia_hra", name: "Rotala rotundifolia 'H'ra'", common: "H'ra", alias: ["rotala hra", "rotala h ra", "rotala sp hra", "hra", "rotala vietnam hra"] },
     { key: "rotala_rotundifolia", name: "Rotala rotundifolia", alias: ["rotala green", "rotala indica"] },
     { key: "rotala_rotundifolia_blood_red", name: "Rotala rotundifolia 'Blood Red'", alias: ["rotala blood red"] },
     { key: "rotala_wallichii", name: "Rotala wallichii", alias: [] },
     { key: "rotala_macrandra", name: "Rotala macrandra", alias: [] },
     { key: "rotala_wayanad", name: "Rotala sp. 'Wayanad'", alias: ["rotala wayanad"] },
     { key: "ludwigia_repens", name: "Ludwigia repens", alias: [] },
-    { key: "ludwigia_palustris_super_red", name: "Ludwigia palustris 'Super Red'", alias: ["ludwigia super red", "super red"] },
+    { key: "ludwigia_palustris_super_red", name: "Ludwigia palustris 'Super Red'", common: "Super Red", alias: ["ludwigia super red", "super red"] },
     { key: "bacopa_caroliniana", name: "Bacopa caroliniana", alias: ["bacopa"] },
     { key: "bacopa_monnieri", name: "Bacopa monnieri", alias: [] },
     { key: "hygrophila_polysperma", name: "Hygrophila polysperma", alias: ["polysperma"] },
-    { key: "limnophila_sessiliflora", name: "Limnophila sessiliflora", alias: ["ambulia"] },
+    { key: "limnophila_sessiliflora", name: "Limnophila sessiliflora", common: "Ambulia", alias: ["ambulia"] },
     { key: "limnophila_vietnam", name: "Limnophila sp. 'Vietnam'", alias: ["limnophila vietnam", "scrophulariaceae vietnam"] },
     { key: "pogostemon_erectus", name: "Pogostemon erectus", alias: [] },
     { key: "myriophyllum_guyana", name: "Myriophyllum sp. 'Guyana'", alias: ["myriophyllum guyana"] },
     { key: "tonina_fluviatilis", name: "Tonina fluviatilis", alias: ["tonina"] },
   
     // --- epiphytes and mosses ---
-    { key: "anubias_nana_petite", name: "Anubias barteri var. nana 'Petite'", alias: ["anubias nana petite", "anubias petite"] },
+    { key: "anubias_nana_petite", name: "Anubias barteri var. nana 'Petite'", common: "Anubias Petite", alias: ["anubias nana petite", "anubias petite"] },
     { key: "anubias_nana", name: "Anubias barteri var. nana", alias: ["anubias nana", "anubias"] },
-    { key: "bucephalandra", name: "Bucephalandra sp.", alias: ["buce", "bucephalandra"] },
-    { key: "microsorum_pteropus", name: "Microsorum pteropus", alias: ["java fern"] },
-    { key: "microsorum_pteropus_trident", name: "Microsorum pteropus 'Trident'", alias: ["trident java fern", "java fern trident"] },
-    { key: "taxiphyllum_barbieri", name: "Taxiphyllum barbieri", alias: ["java moss"] },
-    { key: "vesicularia_montagnei", name: "Vesicularia montagnei", alias: ["christmas moss", "xmas moss"] },
-    { key: "fissidens_fontanus", name: "Fissidens fontanus", alias: ["fissidens", "phoenix moss"] },
-    { key: "riccardia_chamedryfolia", name: "Riccardia chamedryfolia", alias: ["mini pellia", "coral moss"] }
+    { key: "bucephalandra", name: "Bucephalandra sp.", common: "Buce", alias: ["buce", "bucephalandra"] },
+    { key: "microsorum_pteropus", name: "Microsorum pteropus", common: "Java Fern", alias: ["java fern"] },
+    { key: "microsorum_pteropus_trident", name: "Microsorum pteropus 'Trident'", common: "Trident Java Fern", alias: ["trident java fern", "java fern trident"] },
+    { key: "taxiphyllum_barbieri", name: "Taxiphyllum barbieri", common: "Java Moss", alias: ["java moss"] },
+    { key: "vesicularia_montagnei", name: "Vesicularia montagnei", common: "Christmas Moss", alias: ["christmas moss", "xmas moss"] },
+    { key: "fissidens_fontanus", name: "Fissidens fontanus", common: "Phoenix Moss", alias: ["fissidens", "phoenix moss"] },
+    { key: "riccardia_chamedryfolia", name: "Riccardia chamedryfolia", common: "Mini Pellia", alias: ["mini pellia", "coral moss"] }
   ];
   
   /**
@@ -747,6 +749,19 @@
     return null;
   }
   function daysSince(ts) { return ts ? Math.floor((Date.now() - new Date(ts)) / DAY) : null; }
+
+  /** "today" / "yesterday" / "5d ago" — days as a person would say them. */
+  function ago(d) {
+    if (d === null || d === undefined) return "—";
+    if (d <= 0) return "today";
+    if (d === 1) return "yesterday";
+    return d + "d ago";
+  }
+  function inDays(d) {
+    if (d <= 0) return "today";
+    if (d === 1) return "tomorrow";
+    return "in " + d + "d";
+  }
   function shortDate(ts) { var d = new Date(ts); return (d.getMonth() + 1) + "/" + d.getDate(); }
 
   // Config resolves by timestamp, so a backdated entry sees the settings that
@@ -969,8 +984,8 @@
       var last = lastEntry(tankId, test);
       var d = last ? daysSince(last.ts) : null;
       if (d === null) { out.none.push({ label: label, detail: "not started" }); return; }
-      if (d >= interval) out.now.push({ label: label, detail: d + "d ago", late: true });
-      else if (interval - d <= 3) out.soon.push({ label: label, detail: "in " + (interval - d) + "d" });
+      if (d >= interval) out.now.push({ label: label, detail: ago(d), late: true });
+      else if (interval - d <= 3) out.soon.push({ label: label, detail: inDays(interval - d) });
     }
 
     rolling("Water change", function (e) { return e.kind === "water_change"; },
@@ -981,6 +996,9 @@
     }, cadenceOf(tankId, "cadence_glass", 14));
     rolling("Iodine", function (e) { return e.kind === "dose" && /iodide|iodine/.test(e.data.product); },
       cadenceOf(tankId, "cadence_iodine", 28));
+    rolling("Checker fluid", function (e) {
+      return e.kind === "maintenance" && e.data.task === "checker_fluid";
+    }, cadenceOf(tankId, "cadence_checker_fluid", 14));
 
     function cyclical(label, task, months) {
       var start = quarterStart(months);
@@ -993,7 +1011,7 @@
         var next = nextQuarterStart(months);
         if (next) {
           var days = Math.ceil((next - Date.now()) / DAY);
-          if (days <= 21) out.soon.push({ label: label, detail: "in " + days + "d" });
+          if (days <= 21) out.soon.push({ label: label, detail: inDays(days) });
         }
       }
     }
@@ -1059,7 +1077,9 @@
         return id;
       }).join(", ");
       if (e.data.species) {
-        var who = e.data.count + " " + pretty(e.data.species);
+        var who = e.data.count
+          ? e.data.count + " " + pretty(e.data.species)
+          : plantName(e.data.species);
         return b ? who + " — " + b : who;
       }
       return b || "Note";
@@ -1203,7 +1223,7 @@
     var bits = [];
     if (tank.status === "paused") bits.push(tank.why || "paused");
     else {
-      bits.push(s.days === null ? "no water change logged" : s.days + "d since water change");
+      bits.push(s.days === null ? "no water change logged" : "water change " + ago(s.days));
       var ck = lastEntry(tank.id, function (e) { return e.kind === "checker"; });
       if (ck) bits.push("checker " + ck.data.checker);
     }
@@ -1255,9 +1275,7 @@
   }
 
   function renderTankList(app) {
-    var add = el("button", "datechip", "+ Tank");
-    add.onclick = addTank;
-    app.appendChild(pageHead("Tanks", state.tanks.length + (state.tanks.length === 1 ? " tank" : " tanks"), add));
+    app.appendChild(pageHead("Tanks", state.tanks.length + (state.tanks.length === 1 ? " tank" : " tanks")));
 
     var needs = [], ok = [];
     state.tanks.forEach(function (t) {
@@ -1438,10 +1456,10 @@
       var dt = new Date(e.ts), key = dt.toDateString();
       if (key !== day) {
         day = key;
-        var ago = daysSince(e.ts);
+        var daysAgo = daysSince(e.ts);
         app.appendChild(el("div", "daylabel",
           dt.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
-          (ago === 0 ? " \u00b7 today" : ago === 1 ? " \u00b7 yesterday" : " \u00b7 " + ago + "d ago")));
+          " \u00b7 " + ago(daysAgo)));
         card = el("div", "card");
         app.appendChild(card);
       }
@@ -1574,6 +1592,25 @@
 
   /* ---- standalone dosing ---- */
 
+  var DOSE_UNITS = {
+    ml:    { min: 0.25, max: 10, step: 0.25 },
+    pumps: { min: 0.5,  max: 6,  step: 0.5 },
+    tabs:  { min: 1,    max: 6,  step: 1 },
+    tsp:   { min: 0.25, max: 4,  step: 0.25 },
+    scoop: { min: 0.5,  max: 4,  step: 0.5 }
+  };
+
+  var DOSE_PRESETS = [
+    { product: "tropica_specialised", unit: "pumps", amount: 2 },
+    { product: "seachem_reef_iodide", unit: "ml", amount: 0.5 },
+    { product: "seachem_flourish", unit: "ml", amount: 1 },
+    { product: "seachem_prime", unit: "ml", amount: 0.5 },
+    { product: "seachem_paraguard", unit: "ml", amount: 1 },
+    { product: "seachem_kanaplex", unit: "scoop", amount: 1 },
+    { product: "api_aquarium_salt", unit: "tsp", amount: 1 },
+    { product: "aquario_neo_solid_tab", unit: "tabs", amount: 1 }
+  ];
+
   function doseModal() {
     var tank = activeTank();
     var seen = {};
@@ -1582,34 +1619,55 @@
         seen[e.data.product] = { product: e.data.product, unit: e.data.unit, amount: e.data.amount };
       }
     });
-    // Presets are always offered, not just when nothing has been dosed yet —
-    // otherwise iodide is invisible until the first time you log it.
-    [{ product: "tropica_specialised", unit: "pumps", amount: 2 },
-     { product: "seachem_reef_iodide", unit: "ml", amount: 0.5 }].forEach(function (p) {
-      if (!seen[p.product]) seen[p.product] = p;
-    });
+    // Presets are always offered, not just when nothing has been dosed yet.
+    DOSE_PRESETS.forEach(function (p) { if (!seen[p.product]) seen[p.product] = p; });
     var known = Object.keys(seen).map(function (k) { return seen[k]; });
 
     draft = { when: nowLocal(), product: known[0].product, unit: known[0].unit,
-              amount: known[0].amount, note: "" };
+              amount: known[0].amount, other: false, note: "" };
 
     openModal("Dose", tank.name, function (form, refresh) {
       var f = labField("Product");
-      f.appendChild(chipRow(
-        known.map(function (k) { return { id: k.product, label: pretty(k.product) }; }),
-        [draft.product],
-        function (id) {
+      var opts = known.map(function (k) { return { id: k.product, label: pretty(k.product) }; });
+      opts.push({ id: "__other", label: "Something else" });
+      f.appendChild(chipRow(opts, [draft.other ? "__other" : draft.product], function (id) {
+        if (id === "__other") { draft.other = true; draft.product = ""; }
+        else {
+          draft.other = false;
           draft.product = id;
           draft.unit = seen[id] ? seen[id].unit : draft.unit;
           draft.amount = seen[id] ? seen[id].amount : draft.amount;
-          refresh();
         }
-      ));
+        refresh();
+      }));
       form.appendChild(f);
 
-      var isMl = draft.unit === "ml";
-      form.appendChild(sliderField("Amount", isMl ? 0.25 : 0.5, isMl ? 5 : 6, isMl ? 0.25 : 0.5,
-        draft.amount, function (v) { return v + " " + draft.unit; },
+      if (draft.other) {
+        var pf = el("div", "field");
+        var pl = el("label", null, "Product name");
+        pl.setAttribute("for", "newprod");
+        pf.appendChild(pl);
+        var pi = document.createElement("input");
+        pi.type = "text";
+        pi.id = "newprod";
+        pi.placeholder = "Seachem Excel";
+        pi.value = pretty(draft.product);
+        pi.oninput = function () { draft.product = slug(pi.value); };
+        pf.appendChild(pi);
+        form.appendChild(pf);
+
+        var uf = labField("Unit");
+        uf.appendChild(chipRow(
+          Object.keys(DOSE_UNITS).map(function (u) { return { id: u, label: u }; }),
+          [draft.unit],
+          function (u) { draft.unit = u; draft.amount = DOSE_UNITS[u].min; refresh(); }));
+        form.appendChild(uf);
+      }
+
+      var spec = DOSE_UNITS[draft.unit] || DOSE_UNITS.ml;
+      form.appendChild(sliderField("Amount", spec.min, spec.max, spec.step,
+        Math.min(Math.max(draft.amount, spec.min), spec.max),
+        function (v) { return v + " " + draft.unit; },
         function (v) { draft.amount = v; }));
 
       var sug = suggestedDose(tank.id, draft.product);
@@ -1625,6 +1683,7 @@
       whenField(form);
       noteField(form);
     }, function () {
+      if (!draft.product) { toast("Name the product."); return; }
       commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "dose",
         data: { product: draft.product, amount: draft.amount, unit: draft.unit },
         note: draft.note || "" }], "Dose logged.");
@@ -1648,7 +1707,7 @@
     if (!refills.length) {
       blk.card.appendChild(el("p", "empty", "Log a refill under Maintenance to start measuring."));
     } else {
-      kv(blk.card, "Last refill", daysSince(refills[0].ts) + "d ago");
+      kv(blk.card, "Last refill", ago(daysSince(refills[0].ts)));
       if (refills.length > 1) {
         var span = Math.round((new Date(refills[0].ts) - new Date(refills[1].ts)) / DAY);
         var b = bubbleOf(tank.id, refills[0].ts);
@@ -1677,6 +1736,40 @@
     ed.style.marginTop = "12px";
     ed.onclick = function () { cylinderModal(tank); };
     blk.card.appendChild(ed);
+    return blk;
+  }
+
+  /**
+   * Purigen regenerates roughly ten times before the resin is spent, so the
+   * count since the last replacement is the number worth knowing. No cadence —
+   * exhaustion is bioload-driven and shows as the resin darkening.
+   */
+  function purigenBlock(tank) {
+    var blk = refBlock("Purigen");
+    var entries = tankEntries(tank.id).filter(function (e) {
+      return e.kind === "maintenance" &&
+        (e.data.task === "purigen_regen" || e.data.task === "purigen_replace");
+    });
+
+    if (!entries.length) {
+      blk.card.appendChild(el("p", "empty", "Log a regeneration or replacement under Maintenance."));
+      return blk;
+    }
+
+    var lastRegen = entries.filter(function (e) { return e.data.task === "purigen_regen"; })[0];
+    var lastSwap = entries.filter(function (e) { return e.data.task === "purigen_replace"; })[0];
+
+    kv(blk.card, "Last regenerated", lastRegen ? ago(daysSince(lastRegen.ts)) : "never");
+    kv(blk.card, "Last replaced", lastSwap ? ago(daysSince(lastSwap.ts)) : "never");
+
+    var since = entries.filter(function (e) {
+      if (e.data.task !== "purigen_regen") return false;
+      return !lastSwap || new Date(e.ts) > new Date(lastSwap.ts);
+    }).length;
+    kv(blk.card, "Regens since replacement", String(since), since >= 8);
+    if (since >= 8) {
+      blk.card.appendChild(el("p", "empty", "Resin is near the end of its useful life — around ten cycles."));
+    }
     return blk;
   }
 
@@ -1768,6 +1861,12 @@
     edit.onclick = function () { tankModal(tank); };
     app.appendChild(pageHead("Reference", tank.name, edit));
 
+    var addRow = el("div", "block");
+    var addBtn = el("button", "sheetlink", "+ Add a tank");
+    addBtn.onclick = addTank;
+    addRow.appendChild(addBtn);
+    app.appendChild(addRow);
+
     var sch = schedule(tank.id);
     var b1 = refBlock("Schedule");
     var g = el("div", "grid2");
@@ -1816,7 +1915,7 @@
     if (pr.length) {
       pr.forEach(function (x) {
         var t = lastEntry(tank.id, function (e) { return e.kind === "plant" && e.data.event === "trim" && e.data.species === x.species; });
-        kv(b3.card, plantName(x.species), t ? "trimmed " + daysSince(t.ts) + "d ago" : "no trim logged");
+        kv(b3.card, plantName(x.species), t ? "trimmed " + ago(daysSince(t.ts)) : "no trim logged");
       });
       if (pr.length > 1) {
         var mg = el("button", "sheetlink", "Merge duplicates");
@@ -1830,6 +1929,7 @@
     app.appendChild(b3);
 
     app.appendChild(cylinderBlock(tank));
+    app.appendChild(purigenBlock(tank));
 
 
     var b4 = refBlock("Cadence");
@@ -1844,7 +1944,7 @@
 
     var b5 = refBlock("Last test");
     var lt = lastEntry(tank.id, function (e) { return e.kind === "test"; });
-    if (lt) kv(b5.card, describe(lt), daysSince(lt.ts) + "d ago");
+    if (lt) kv(b5.card, describe(lt), ago(daysSince(lt.ts)));
     else b5.card.appendChild(el("p", "empty", "No test logged yet."));
     app.appendChild(b5);
 
@@ -2208,7 +2308,7 @@
       dose: true,
       fertProduct: lastFert ? lastFert.data.product : "tropica_premium",
       pumps: lastFert ? lastFert.data.amount : 3,
-      iodine: iodDays >= cadenceOf(tank.id, "cadence_iodine", 28),
+      iodine: false,          // deliberate: a dose is a decision, not a default
       iodProduct: iodProduct,
       iodAmount: lastIod ? lastIod.data.amount : 0.5,
       glass: true,
@@ -2461,19 +2561,23 @@
       form.appendChild(f);
 
       var roster = rosterOf(activeTank().id, "livestock").filter(function (r) { return r.count > 0; });
-      var f2 = labField("Who");
-      if (roster.length) {
-        f2.appendChild(chipRow(
-          roster.map(function (r) { return { id: r.species, label: pretty(r.species) }; }),
-          draft.species ? [draft.species] : [],
-          function (id) { draft.species = draft.species === id ? "" : id; refresh(); }
-        ));
-      } else {
-        f2.appendChild(el("p", "mathline", "Log livestock to pick a species here."));
-      }
+      var flora = rosterOf(activeTank().id, "plant").filter(function (p) { return p.count > 0; });
+
+      // Not everything worth observing is an animal — algae, film, a cloudy
+      // column are all tank-level.
+      var subjects = [{ id: "__tank", label: "Tank" }]
+        .concat(roster.map(function (r) { return { id: r.species, label: pretty(r.species) }; }))
+        .concat(flora.map(function (p) { return { id: p.species, label: plantName(p.species) }; }));
+
+      var f2 = labField("Subject");
+      f2.appendChild(chipRow(subjects, [draft.species || "__tank"], function (id) {
+        draft.species = id === "__tank" ? "" : id;
+        refresh();
+      }));
       form.appendChild(f2);
 
-      if (draft.species) {
+      var isAnimal = roster.some(function (r) { return r.species === draft.species; });
+      if (isAnimal) {
         var max = 1;
         roster.forEach(function (r) { if (r.species === draft.species) max = Math.max(r.count, 1); });
         form.appendChild(sliderField("How many affected", 1, max, 1, Math.min(draft.count, max),
@@ -2486,7 +2590,13 @@
     }, function () {
       if (!draft.behavior.length && !draft.note.trim() && !draft.species) { toast("Nothing to log yet."); return; }
       var data = { behavior: draft.behavior };
-      if (draft.species) { data.species = draft.species; data.count = draft.count; }
+      if (draft.species) {
+        data.species = draft.species;
+        var animal = rosterOf(state.active, "livestock").some(function (r) {
+          return r.species === draft.species && r.count > 0;
+        });
+        if (animal) data.count = draft.count;
+      }
       var entry = { id: existing ? existing.id : uid(), ts: fromLocal(draft.when),
         tank: state.active, kind: "observation", data: data, note: draft.note || "" };
       if (existing) replaceEntry(entry, "Observation updated.");
@@ -2510,6 +2620,28 @@
       commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "maintenance",
         data: { task: draft.task }, note: draft.note || "" }], "Maintenance logged.");
     });
+  }
+
+  // Genuinely singular names that end in s. Without these, "corydoras" gets
+  // helpfully corrected to "corydora", which is worse than the problem.
+  var SINGULAR_S = ["corydoras", "otocinclus", "discus", "plecostomus", "ancistrus",
+                    "pristella", "rasboras", "hyphessobrycon", "paracheirodon"];
+
+  function singularize(name) {
+    var words = String(name).trim().split(/\s+/);
+    if (!words.length) return name;
+    var last = words[words.length - 1];
+    var lower = last.toLowerCase();
+    if (SINGULAR_S.indexOf(lower) !== -1) return name;
+    if (!/s$/.test(lower) || /ss$/.test(lower)) return name;
+
+    var fixed;
+    if (/ies$/.test(lower)) fixed = last.slice(0, -3) + "y";
+    else if (/(sh|ch|x|s)es$/.test(lower)) fixed = last.slice(0, -2);
+    else fixed = last.slice(0, -1);
+
+    words[words.length - 1] = fixed;
+    return words.join(" ");
   }
 
   function livestockModal() {
@@ -2539,8 +2671,23 @@
       f2.appendChild(l2);
       var i2 = document.createElement("input");
       i2.type = "text"; i2.id = "sp"; i2.value = draft.species; i2.placeholder = "Ember tetra";
-      i2.oninput = function () { draft.species = i2.value; };
+      i2.oninput = function () {
+        draft.species = i2.value;
+        var hint = document.getElementById("sphint");
+        if (hint) hint.innerHTML = "";
+        var single = singularize(draft.species);
+        if (hint && single !== draft.species) {
+          // Suggested rather than forced — a wrong autocorrect on a species
+          // name is how the split-species problem starts in the first place.
+          var b = el("button", "sheetlink", "Log as \u201c" + single + "\u201d instead");
+          b.onclick = function () { draft.species = single; refresh(); };
+          hint.appendChild(b);
+        }
+      };
       f2.appendChild(i2);
+      var hintP = el("p", "mathline");
+      hintP.id = "sphint";
+      f2.appendChild(hintP);
       form.appendChild(f2);
 
       form.appendChild(sliderField("Count", 1, 20, 1, draft.count,
@@ -2550,6 +2697,11 @@
       noteField(form);
     }, function () {
       if (!draft.species.trim()) { toast("Name the species."); return; }
+      var single = singularize(draft.species);
+      if (single !== draft.species && !draft.pluralOk) {
+        draft.species = single;
+        toast("Saving as \u201c" + single + "\u201d — singular keeps counts together.");
+      }
       commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "livestock",
         data: { event: draft.event, species: slug(draft.species), count: draft.count },
         note: draft.note || "" }], "Livestock logged.");
@@ -2624,7 +2776,12 @@
   }
 
   function plantName(key) {
-    for (var i = 0; i < PLANTS.length; i++) if (PLANTS[i].key === key) return PLANTS[i].name;
+    for (var i = 0; i < PLANTS.length; i++) {
+      if (PLANTS[i].key !== key) continue;
+      return PLANTS[i].common
+        ? PLANTS[i].name + " (" + PLANTS[i].common + ")"
+        : PLANTS[i].name;
+    }
     return pretty(key);
   }
 
@@ -2681,19 +2838,27 @@
       if (!draft.from || !draft.matched) { toast("Pick both sides."); return; }
       if (draft.from === draft.matched.key) { toast("Those are the same plant."); return; }
 
-      var moving = tankEntries(tank.id).filter(function (e) {
-        return e.kind === kind && e.data.species === draft.from;
-      });
-      if (!moving.length) { closeModal(); toast("Nothing to move."); return; }
-
-      var target = draft.matched.key;
+      var from = draft.from, to = draft.matched.key;
       closeModal();
-      moving.forEach(function (e) {
-        e.data.species = target;
-        postRows(toRows(e), "replace", e.id).catch(function () {});
-      });
-      render();
-      toast(moving.length + " entries merged.");
+
+      fetch("/api/log", {
+        method: "POST",
+        headers: authHeaders({ "Content-Type": "application/json" }),
+        credentials: "same-origin",
+        body: JSON.stringify({ action: "merge", kind: kind, from: from, to: to })
+      }).then(function (r) { return asJson(r, "/api/log"); })
+        .then(function (j) {
+          if (!j.ok) throw new Error(j.error || "merge failed");
+          // Mirror it locally so the screen matches without a round trip.
+          state.entries.forEach(function (e) {
+            if (e.kind === kind && e.data.species === from) e.data.species = to;
+          });
+          render();
+          toast(j.merged + " rows merged.");
+        })
+        .catch(function (err) {
+          toast("Merge failed — " + err.message);
+        });
     }, "Merge");
   }
 
