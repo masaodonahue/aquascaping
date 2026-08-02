@@ -392,7 +392,9 @@
 
   var MAINTENANCE = [
     { id: "filter_pipes", label: "Filter & pipes" },
-    { id: "reactor", label: "Reactor" }
+    { id: "reactor", label: "Reactor" },
+    { id: "glass", label: "Glass" },
+    { id: "co2_refill", label: "CO₂ refill" }
   ];
 
   var SETTINGS = [
@@ -419,6 +421,127 @@
     glass: [{ d: "M5 4h14v11H5z" }, { d: "M8.5 19.5h7" }, { d: "M12 15v4.5" }, { d: "M8 7.5l3 3" }],
     scissors: [{ c: [6, 18, 2.6] }, { c: [18, 18, 2.6] }, { d: "M7.8 16.2L19 4" }, { d: "M16.2 16.2L5 4" }]
   };
+
+  /* ================= plant lookup ================= */
+
+  var PLANTS = [
+    // --- carpets and foreground ---
+    { key: "micranthemum_tweediei", name: "Micranthemum tweediei", alias: ["monte carlo", "micranthemum monte carlo", "mc"] },
+    { key: "hemianthus_callitrichoides", name: "Hemianthus callitrichoides 'Cuba'", alias: ["hc cuba", "dwarf baby tears", "hemianthus cuba"] },
+    { key: "eleocharis_acicularis_mini", name: "Eleocharis acicularis 'Mini'", alias: ["dwarf hairgrass mini", "hairgrass mini", "eleocharis mini"] },
+    { key: "eleocharis_parvula", name: "Eleocharis parvula", alias: ["dwarf hairgrass", "hairgrass"] },
+    { key: "utricularia_graminifolia", name: "Utricularia graminifolia", alias: ["ug"] },
+    { key: "glossostigma_elatinoides", name: "Glossostigma elatinoides", alias: ["glosso"] },
+    { key: "marsilea_hirsuta", name: "Marsilea hirsuta", alias: ["dwarf four leaf clover", "marsilea"] },
+    { key: "hydrocotyle_tripartita", name: "Hydrocotyle tripartita 'Japan'", alias: ["hydrocotyle japan", "japanese clover"] },
+    { key: "helanthium_tenellum", name: "Helanthium tenellum", alias: ["echinodorus tenellus", "pygmy chain sword", "tenellus"] },
+  
+    // --- midground ---
+    { key: "staurogyne_repens", name: "Staurogyne repens", alias: ["repens", "staurogyne"] },
+    { key: "cryptocoryne_parva", name: "Cryptocoryne parva", alias: ["crypt parva"] },
+    { key: "cryptocoryne_wendtii", name: "Cryptocoryne wendtii", alias: ["crypt wendtii"] },
+    { key: "cryptocoryne_lutea", name: "Cryptocoryne lutea", alias: ["crypt lutea"] },
+    { key: "pogostemon_helferi", name: "Pogostemon helferi", alias: ["downoi"] },
+    { key: "blyxa_japonica", name: "Blyxa japonica", alias: ["blyxa"] },
+    { key: "blyxa_novoguineensis", name: "Blyxa novoguineensis", alias: [] },
+    { key: "alternanthera_reineckii_mini", name: "Alternanthera reineckii 'Mini'", alias: ["ar mini", "alternanthera mini"] },
+    { key: "cyperus_helferi", name: "Cyperus helferi", alias: [] },
+    { key: "hygrophila_pinnatifida", name: "Hygrophila pinnatifida", alias: ["pinnatifida"] },
+    { key: "hygrophila_araguaia", name: "Hygrophila araguaia 'Chai'", alias: ["araguaia chai", "hygrophila chai"] },
+    { key: "hygrophila_serpyllum", name: "Hygrophila serpyllum", alias: ["serpyllum"] },
+  
+    // --- stems and background ---
+    { key: "rotala_rotundifolia_hra", name: "Rotala rotundifolia 'H'ra'", alias: ["rotala hra", "rotala h ra", "rotala sp hra", "hra", "rotala vietnam hra"] },
+    { key: "rotala_rotundifolia", name: "Rotala rotundifolia", alias: ["rotala green", "rotala indica"] },
+    { key: "rotala_rotundifolia_blood_red", name: "Rotala rotundifolia 'Blood Red'", alias: ["rotala blood red"] },
+    { key: "rotala_wallichii", name: "Rotala wallichii", alias: [] },
+    { key: "rotala_macrandra", name: "Rotala macrandra", alias: [] },
+    { key: "rotala_wayanad", name: "Rotala sp. 'Wayanad'", alias: ["rotala wayanad"] },
+    { key: "ludwigia_repens", name: "Ludwigia repens", alias: [] },
+    { key: "ludwigia_palustris_super_red", name: "Ludwigia palustris 'Super Red'", alias: ["ludwigia super red", "super red"] },
+    { key: "bacopa_caroliniana", name: "Bacopa caroliniana", alias: ["bacopa"] },
+    { key: "bacopa_monnieri", name: "Bacopa monnieri", alias: [] },
+    { key: "hygrophila_polysperma", name: "Hygrophila polysperma", alias: ["polysperma"] },
+    { key: "limnophila_sessiliflora", name: "Limnophila sessiliflora", alias: ["ambulia"] },
+    { key: "limnophila_vietnam", name: "Limnophila sp. 'Vietnam'", alias: ["limnophila vietnam", "scrophulariaceae vietnam"] },
+    { key: "pogostemon_erectus", name: "Pogostemon erectus", alias: [] },
+    { key: "myriophyllum_guyana", name: "Myriophyllum sp. 'Guyana'", alias: ["myriophyllum guyana"] },
+    { key: "tonina_fluviatilis", name: "Tonina fluviatilis", alias: ["tonina"] },
+  
+    // --- epiphytes and mosses ---
+    { key: "anubias_nana_petite", name: "Anubias barteri var. nana 'Petite'", alias: ["anubias nana petite", "anubias petite"] },
+    { key: "anubias_nana", name: "Anubias barteri var. nana", alias: ["anubias nana", "anubias"] },
+    { key: "bucephalandra", name: "Bucephalandra sp.", alias: ["buce", "bucephalandra"] },
+    { key: "microsorum_pteropus", name: "Microsorum pteropus", alias: ["java fern"] },
+    { key: "microsorum_pteropus_trident", name: "Microsorum pteropus 'Trident'", alias: ["trident java fern", "java fern trident"] },
+    { key: "taxiphyllum_barbieri", name: "Taxiphyllum barbieri", alias: ["java moss"] },
+    { key: "vesicularia_montagnei", name: "Vesicularia montagnei", alias: ["christmas moss", "xmas moss"] },
+    { key: "fissidens_fontanus", name: "Fissidens fontanus", alias: ["fissidens", "phoenix moss"] },
+    { key: "riccardia_chamedryfolia", name: "Riccardia chamedryfolia", alias: ["mini pellia", "coral moss"] }
+  ];
+  
+  /**
+   * Vendor noise, stripped before matching. Covers AFA's two naming patterns
+   * ("IC043 ADA Tissue Culture - X (cup size: short)" and "AFA X tissue culture
+   * cup") plus Tropica's "1-2-Grow!".
+   */
+  var PLANT_NOISE = [
+    /\(cup size:[^)]*\)/gi,
+    /\(labeled as[^)]*\)/gi,
+    /\(pouch\)/gi,
+    /\b(ic|dc|af)\s*\d{2,4}\b/gi,     // SKU prefixes
+    /\b\d-\d-grow!?/gi,                // Tropica 1-2-Grow!
+    /\btropica aquarium plants:?/gi,
+    /\btissue culture( plant| cup)?\b/gi,
+    /\b(ada|afa|uns|tropica|dennerle)\b/gi,
+    /\(tc\)/gi,
+    /\bplant\b/gi,
+    /\bcup\b/gi
+  ];
+  
+  function cleanPlantName(raw) {
+    var t = String(raw || "").toLowerCase();
+    PLANT_NOISE.forEach(function (re) { t = t.replace(re, " "); });
+    return t
+      .replace(/[''`"".,]/g, " ")
+      .replace(/\bvar\b|\bsp\b/g, " ")
+      .replace(/[-–—]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  
+  /**
+   * Returns { key, name, confidence } — "exact" when the scientific name or a
+   * known alias is present, "guess" when only the genus matches, "none" when
+   * nothing does. A "none" still yields a usable key from the cleaned text.
+   */
+  function matchPlant(raw) {
+    var t = cleanPlantName(raw);
+    if (!t) return null;
+  
+    var best = null;
+    PLANTS.forEach(function (p) {
+      var names = [cleanPlantName(p.name)].concat(p.alias);
+      names.forEach(function (n) {
+        if (!n) return;
+        if (t.indexOf(n) !== -1) {
+          // Longest match wins, so "rotala rotundifolia hra" beats "rotala".
+          if (!best || n.length > best.len) best = { p: p, len: n.length, kind: "exact" };
+        }
+      });
+    });
+    if (best) return { key: best.p.key, name: best.p.name, confidence: best.kind };
+  
+    var genus = t.split(" ")[0];
+    var byGenus = PLANTS.filter(function (p) {
+      return cleanPlantName(p.name).split(" ")[0] === genus;
+    });
+    if (byGenus.length === 1) {
+      return { key: byGenus[0].key, name: byGenus[0].name, confidence: "guess" };
+    }
+  
+    return { key: t.replace(/\s+/g, "_"), name: t, confidence: "none" };
+  }
 
   /* ================= state ================= */
 
@@ -616,6 +739,37 @@
     };
   }
   function cadenceOf(tankId, key, def) { return Number(settingValue(tankId, key, def)); }
+
+  // Bubble rate is stored the way it's spoken: a count and an interval.
+  // Older bps rows still read, so nothing logged before this is lost.
+  function bubbleOf(tankId, asOf) {
+    var c = settingValue(tankId, "bubble_count", null, asOf);
+    var sec = settingValue(tankId, "bubble_seconds", null, asOf);
+    if (c != null && sec != null) return { count: Number(c), seconds: Number(sec) };
+    var bps = settingValue(tankId, "bubble_rate", null, asOf);
+    if (bps != null && Number(bps) > 0) return { count: 1, seconds: Math.round(1 / Number(bps)) || 1 };
+    return null;
+  }
+  function bubbleLabel(b) {
+    if (!b) return "not set";
+    return b.count + " per " + b.seconds + (b.seconds === 1 ? " sec" : " secs");
+  }
+  function bubbleRate(b) { return b ? b.count / b.seconds : null; }
+
+  // Light is a value on a scale — 3 of 6 on a Twinstar, or 40 of 100 on a
+  // percentage fixture. Stored as two rows so the scale travels with the value.
+  function lightOf(tankId, asOf) {
+    var v = settingValue(tankId, "light_value", null, asOf);
+    var sc = settingValue(tankId, "light_scale", null, asOf);
+    if (v != null) return { value: Number(v), scale: sc != null ? Number(sc) : 6 };
+    var pct = settingValue(tankId, "light_intensity", null, asOf);
+    if (pct != null) return { value: Number(pct), scale: 100 };
+    return null;
+  }
+  function lightLabel(l) {
+    if (!l) return "not set";
+    return l.scale === 100 ? l.value + "%" : l.value + " / " + l.scale;
+  }
   function netVolume(tankId) {
     var v = settingValue(tankId, "net_volume_l", null);
     return v == null ? null : Number(v);
@@ -779,28 +933,33 @@
   }
 
   function dues(tankId) {
-    var out = { now: [], soon: [] };
+    var out = { now: [], soon: [], none: [] };
     if (activeTank().status === "paused") return out;
 
+    // A cadence with no first entry isn't overdue — it hasn't started. Flagging
+    // it pushes you into inventing a date just to silence the app.
     function rolling(label, test, interval) {
       var last = lastEntry(tankId, test);
       var d = last ? daysSince(last.ts) : null;
-      if (d === null) { out.now.push({ label: label, detail: "never logged", late: true }); return; }
+      if (d === null) { out.none.push({ label: label, detail: "not started" }); return; }
       if (d >= interval) out.now.push({ label: label, detail: d + "d ago", late: true });
       else if (interval - d <= 3) out.soon.push({ label: label, detail: "in " + (interval - d) + "d" });
     }
 
     rolling("Water change", function (e) { return e.kind === "water_change"; },
       cadenceOf(tankId, "cadence_water_change", 7));
-    rolling("Glass", function (e) { return e.kind === "water_change" && e.data.glass; },
-      cadenceOf(tankId, "cadence_glass", 14));
+    rolling("Glass", function (e) {
+      return (e.kind === "water_change" && e.data.glass) ||
+             (e.kind === "maintenance" && e.data.task === "glass");
+    }, cadenceOf(tankId, "cadence_glass", 14));
     rolling("Iodine", function (e) { return e.kind === "dose" && /iodide|iodine/.test(e.data.product); },
       cadenceOf(tankId, "cadence_iodine", 28));
 
     function cyclical(label, task, months) {
       var start = quarterStart(months);
       var last = lastEntry(tankId, function (e) { return e.kind === "maintenance" && e.data.task === task; });
-      if (!last || new Date(last.ts) < start) {
+      if (!last) { out.none.push({ label: label, detail: "not started" }); return; }
+      if (new Date(last.ts) < start) {
         var wks = Math.floor((Date.now() - start) / (DAY * 7));
         out.now.push({ label: label, detail: wks + "w into cycle", late: wks > 1 });
       } else {
@@ -883,7 +1042,7 @@
       return pretty(e.data.task);
     }
     if (e.kind === "livestock") return e.data.event + " · " + e.data.count + " " + pretty(e.data.species);
-    if (e.kind === "plant") return e.data.event + " · " + pretty(e.data.species);
+    if (e.kind === "plant") return e.data.event + " · " + plantName(e.data.species);
     if (e.kind === "setting") {
       if (e.data.unit === "time") return pretty(e.data.setting) + " → " + e.data.value;
       return pretty(e.data.setting) + " → " + e.data.value + " " + e.data.unit;
@@ -922,6 +1081,7 @@
   var LOG_ROWS = [
     { label: "Water change", desc: "50%, dosing, glass, trim", ic: "waves", open: function () { waterChangeModal(); } },
     { label: "Drop checker", desc: "Color and CO\u2082 window", ic: "checker", open: function () { checkerModal(); } },
+    { label: "Dose", desc: "Fertilizer or iodine", ic: "drop", open: function () { doseModal(); } },
     { label: "Observation", desc: "Behavior and notes", ic: "eye", open: function () { observationModal(); } },
     { label: "Water test", desc: "Ammonia, nitrite, nitrate", ic: "vial", open: function () { testModal(); } },
     { label: "Maintenance", desc: "Filter, pipes, reactor", ic: "sparkle", open: function () { maintenanceModal(); } },
@@ -1107,6 +1267,7 @@
     var d = dues(tank.id);
     app.appendChild(listBlock("Due", d.now, "Nothing due."));
     if (d.soon.length) app.appendChild(listBlock("Upcoming", d.soon, null));
+    if (d.none.length) app.appendChild(listBlock("Not started", d.none, null));
 
     var recent = tankEntries(tank.id).slice(0, 5);
     var blk = el("div", "block");
@@ -1164,14 +1325,16 @@
   function renderLog(app) {
     app.appendChild(pageHead("Log", activeTank().name));
     LOG_ROWS.forEach(function (r) {
-      var b = el("button", "rowcard");
+      var card = el("div", "rowcard");
+      var b = el("button", "rowmain");
       b.appendChild(iconTile(r.ic));
       var body = el("div", "rowbody");
       body.appendChild(el("div", "name", r.label));
       body.appendChild(el("div", "rowdesc", r.desc));
       b.appendChild(body);
       b.onclick = r.open;
-      app.appendChild(b);
+      card.appendChild(b);
+      app.appendChild(card);
     });
   }
 
@@ -1323,23 +1486,26 @@
     draft = { when: nowLocal() };
     loadConditions(tank.id);
     draft.unlocked = true;
-    draft.intensity = Number(settingValue(tank.id, "light_intensity", 50));
+    var l = lightOf(tank.id);
+    draft.lightValue = l ? l.value : 3;
+    draft.lightScale = l ? l.scale : 6;
 
-    openModal("Conditions", tank.name + " \u00b7 CO\u2082, light, dosing rate", function (form) {
-      [["CO\u2082", "co2On", "co2Off"], ["Light", "lightOn", "lightOff"]].forEach(function (pair) {
+    openModal("Conditions", tank.name + " · CO₂ and light", function (form) {
+      [["CO₂", "co2On", "co2Off"], ["Light", "lightOn", "lightOff"]].forEach(function (pair) {
         var g = el("div", "timepair");
         g.appendChild(el("span", "lab", pair[0]));
         var cols = el("div", "cols");
         [["on", pair[1]], ["off", pair[2]]].forEach(function (x) {
           var cell = el("div");
-          var l = el("label", null, x[0]);
-          l.setAttribute("for", "c_" + x[1]);
-          cell.appendChild(l);
+          var lab = el("label", null, x[0]);
+          lab.setAttribute("for", "c_" + x[1]);
+          cell.appendChild(lab);
           var i = document.createElement("input");
           i.type = "time";
+          i.step = 3600;
           i.id = "c_" + x[1];
           i.value = draft[x[1]];
-          i.onchange = function () { draft[x[1]] = i.value; };
+          i.oninput = i.onchange = function () { draft[x[1]] = i.value; };
           cell.appendChild(i);
           cols.appendChild(cell);
         });
@@ -1347,10 +1513,8 @@
         form.appendChild(g);
       });
 
-      form.appendChild(sliderField("Bubble rate", 0.5, 6, 0.5, draft.bubble,
-        function (v) { return v + " bps"; }, function (v) { draft.bubble = v; }));
-      form.appendChild(sliderField("Light intensity", 10, 100, 5, draft.intensity,
-        function (v) { return v + "%"; }, function (v) { draft.intensity = v; }));
+      form.appendChild(bubbleFields());
+      form.appendChild(lightFields());
 
       var c = el("div", "caution");
       c.innerHTML = "<strong>One variable at a time.</strong> Changing two of these makes the next few weeks of observation unreadable.";
@@ -1359,14 +1523,149 @@
     }, function () {
       var ts = fromLocal(draft.when);
       var out = conditionEntries(tank.id, ts);
-      var curInt = Number(settingValue(tank.id, "light_intensity", null, ts));
-      if (draft.intensity !== curInt) {
+      var curL = lightOf(tank.id, ts);
+      if (draft.lightValue && (!curL || curL.value !== draft.lightValue || curL.scale !== draft.lightScale)) {
         out.push({ id: uid(), ts: ts, tank: tank.id, kind: "setting",
-          data: { setting: "light_intensity", value: draft.intensity, unit: "%" }, note: "" });
+          data: { setting: "light_value", value: draft.lightValue, unit: "step" }, note: "" });
+        out.push({ id: uid(), ts: ts, tank: tank.id, kind: "setting",
+          data: { setting: "light_scale", value: draft.lightScale, unit: "steps" }, note: "" });
       }
       if (out.length) commit(out, "Conditions updated.");
       else { closeModal(); toast("Nothing changed."); }
     }, "Save conditions");
+  }
+
+  /* ---- standalone dosing ---- */
+
+  function doseModal() {
+    var tank = activeTank();
+    var seen = {};
+    tankEntries(tank.id).forEach(function (e) {
+      if (e.kind === "dose" && !seen[e.data.product]) {
+        seen[e.data.product] = { product: e.data.product, unit: e.data.unit, amount: e.data.amount };
+      }
+    });
+    var known = Object.keys(seen).map(function (k) { return seen[k]; });
+    if (!known.length) {
+      known = [{ product: "tropica_specialised", unit: "pumps", amount: 2 },
+               { product: "seachem_reef_iodide", unit: "ml", amount: 0.5 }];
+    }
+
+    draft = { when: nowLocal(), product: known[0].product, unit: known[0].unit,
+              amount: known[0].amount, note: "" };
+
+    openModal("Dose", tank.name, function (form, refresh) {
+      var f = labField("Product");
+      f.appendChild(chipRow(
+        known.map(function (k) { return { id: k.product, label: pretty(k.product) }; }),
+        [draft.product],
+        function (id) {
+          draft.product = id;
+          draft.unit = seen[id] ? seen[id].unit : draft.unit;
+          draft.amount = seen[id] ? seen[id].amount : draft.amount;
+          refresh();
+        }
+      ));
+      form.appendChild(f);
+
+      var isMl = draft.unit === "ml";
+      form.appendChild(sliderField("Amount", isMl ? 0.25 : 0.5, isMl ? 5 : 6, isMl ? 0.25 : 0.5,
+        draft.amount, function (v) { return v + " " + draft.unit; },
+        function (v) { draft.amount = v; }));
+
+      var sug = suggestedDose(tank.id, draft.product);
+      var vol = netVolume(tank.id);
+      if (sug != null && vol) {
+        var over = draft.amount / sug;
+        var m = el("p", "mathline" + (over > 2 ? " off" : ""));
+        m.textContent = "label math for " + vol + " L: " + sug + " ml" +
+          (over > 2 ? "  ·  you're at " + (Math.round(over * 10) / 10) + "×" : "");
+        form.appendChild(m);
+      }
+
+      whenField(form);
+      noteField(form);
+    }, function () {
+      commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "dose",
+        data: { product: draft.product, amount: draft.amount, unit: draft.unit },
+        note: draft.note || "" }], "Dose logged.");
+    });
+  }
+
+  /**
+   * A cylinder isn't on a cadence — it empties when it empties. So this
+   * measures rather than schedules, and reports the bubble rate that was
+   * running over the period, because a duration without it is misleading.
+   */
+  function cylinderBlock(tank) {
+    var blk = refBlock("CO₂ cylinder");
+    var size = settingValue(tank.id, "cylinder_lb", null);
+    kv(blk.card, "Size", size ? size + " lb" : "not set");
+
+    var refills = tankEntries(tank.id).filter(function (e) {
+      return e.kind === "maintenance" && e.data.task === "co2_refill";
+    });
+
+    if (!refills.length) {
+      blk.card.appendChild(el("p", "empty", "Log a refill under Maintenance to start measuring."));
+    } else {
+      kv(blk.card, "Last refill", daysSince(refills[0].ts) + "d ago");
+      if (refills.length > 1) {
+        var span = Math.round((new Date(refills[0].ts) - new Date(refills[1].ts)) / DAY);
+        var b = bubbleOf(tank.id, refills[0].ts);
+        kv(blk.card, "Previous lasted", span + "d" + (b ? " at " + bubbleLabel(b) : ""));
+
+        // Once a second tank has a CO2 schedule, the manifold is feeding two.
+        var multi = null;
+        state.tanks.forEach(function (t) {
+          if (t.id === tank.id) return;
+          var e = lastEntry(t.id, function (x) {
+            return x.kind === "setting" && x.data.setting === "co2_on";
+          });
+          if (e && (!multi || new Date(e.ts) < new Date(multi))) multi = e.ts;
+        });
+        if (multi && new Date(multi) < new Date(refills[0].ts)) {
+          var shared = Math.round((new Date(refills[0].ts) - new Date(multi)) / DAY);
+          blk.card.appendChild(el("p", "empty",
+            Math.min(shared, span) + " of those days ran two tanks off this cylinder."));
+        }
+      } else {
+        blk.card.appendChild(el("p", "empty", "One more refill and this will show how long a cylinder lasts."));
+      }
+    }
+
+    var ed = el("button", "sheetlink", "Set cylinder size");
+    ed.style.marginTop = "12px";
+    ed.onclick = function () { cylinderModal(tank); };
+    blk.card.appendChild(ed);
+    return blk;
+  }
+
+  function cylinderModal(tank) {
+    draft = { when: nowLocal(), lb: Number(settingValue(tank.id, "cylinder_lb", 5)) };
+    openModal("CO₂ cylinder", tank.name, function (form) {
+      form.appendChild(sliderField("Cylinder size", 2.5, 20, 2.5, draft.lb,
+        function (v) { return v + " lb"; }, function (v) { draft.lb = v; }));
+      whenField(form);
+    }, function () {
+      commit([{ id: uid(), ts: fromLocal(draft.when), tank: tank.id, kind: "setting",
+        data: { setting: "cylinder_lb", value: draft.lb, unit: "lb" }, note: "" }], "Cylinder size saved.");
+    }, "Save");
+  }
+
+  function rosterHistoryModal(tank, kind, title) {
+    openModal(title, tank.name, function (form) {
+      var list = tankEntries(tank.id).filter(function (e) { return e.kind === kind; });
+      if (!list.length) { form.appendChild(el("p", "empty", "Nothing logged.")); return; }
+      var card = el("div", "card");
+      list.forEach(function (e) {
+        var r = el("div", "kv" + (e.data.event === "lost" ? " late" : ""));
+        r.appendChild(el("span", null, describe(e)));
+        r.appendChild(el("span", null, shortDate(e.ts)));
+        card.appendChild(r);
+      });
+      form.appendChild(card);
+    }, closeModal, "Close", true);
   }
 
   function renderReference(app, tank) {
@@ -1379,8 +1678,8 @@
     var g = el("div", "grid2");
     [["CO\u2082", sch.co2On && sch.co2Off ? sch.co2On + "\u2013" + sch.co2Off + " \u00b7 " + span(sch.co2On, sch.co2Off) + "h" : "not set"],
      ["Light", sch.lightOn && sch.lightOff ? sch.lightOn + "\u2013" + sch.lightOff + " \u00b7 " + span(sch.lightOn, sch.lightOff) + "h" : "not set"],
-     ["Bubble rate", settingValue(tank.id, "bubble_rate", null) ? settingValue(tank.id, "bubble_rate", null) + " bps" : "not set"],
-     ["Light intensity", settingValue(tank.id, "light_intensity", null) ? settingValue(tank.id, "light_intensity", null) + " %" : "not set"],
+     ["Bubble rate", bubbleLabel(bubbleOf(tank.id))],
+     ["Light intensity", lightLabel(lightOf(tank.id))],
      ["Net volume", netVolume(tank.id) ? netVolume(tank.id) + " L" : "not measured"]
     ].forEach(function (p) {
       var cell = el("div");
@@ -1396,23 +1695,37 @@
     app.appendChild(b1);
 
     var b2 = refBlock("Livestock");
-    var lr = rosterOf(tank.id, "livestock");
-    if (lr.length) lr.forEach(function (x) {
-      var right = String(x.count);
-      if (x.lost) right += "  \u00b7  " + x.lost + " lost of " + x.added;
-      kv(b2.card, pretty(x.species), right, x.count === 0);
-    });
-    else b2.card.appendChild(el("p", "empty", "Fills in as you log additions and losses."));
+    var lr = rosterOf(tank.id, "livestock").filter(function (x) { return x.count > 0; });
+    if (lr.length) {
+      lr.forEach(function (x) { kv(b2.card, pretty(x.species), String(x.count)); });
+      var hist = el("button", "sheetlink", "Added and lost");
+      hist.style.marginTop = "12px";
+      hist.onclick = function () { rosterHistoryModal(tank, "livestock", "Livestock history"); };
+      b2.card.appendChild(hist);
+    } else {
+      b2.card.appendChild(el("p", "empty", "Fills in as you log additions and losses."));
+    }
     app.appendChild(b2);
 
     var b3 = refBlock("Plants");
     var pr = rosterOf(tank.id, "plant").filter(function (x) { return x.count > 0; });
-    if (pr.length) pr.forEach(function (x) {
-      var t = lastEntry(tank.id, function (e) { return e.kind === "plant" && e.data.event === "trim" && e.data.species === x.species; });
-      kv(b3.card, pretty(x.species), t ? "trimmed " + daysSince(t.ts) + "d ago" : "no trim logged");
-    });
-    else b3.card.appendChild(el("p", "empty", "Add plants to get trim buttons on the water change screen."));
+    if (pr.length) {
+      pr.forEach(function (x) {
+        var t = lastEntry(tank.id, function (e) { return e.kind === "plant" && e.data.event === "trim" && e.data.species === x.species; });
+        kv(b3.card, plantName(x.species), t ? "trimmed " + daysSince(t.ts) + "d ago" : "no trim logged");
+      });
+      if (pr.length > 1) {
+        var mg = el("button", "sheetlink", "Merge duplicates");
+        mg.style.marginTop = "12px";
+        mg.onclick = function () { renamePlantModal(tank); };
+        b3.card.appendChild(mg);
+      }
+    } else {
+      b3.card.appendChild(el("p", "empty", "Add plants to get trim buttons on the water change screen."));
+    }
     app.appendChild(b3);
+
+    app.appendChild(cylinderBlock(tank));
 
     var b4 = refBlock("Cadence");
     CADENCE.forEach(function (c) { kv(b4.card, c.label, "every " + cadenceOf(tank.id, c.key, c.def) + " days"); });
@@ -1554,6 +1867,64 @@
 
   /* ---- the shared CO₂ / light / bubble panel ---- */
 
+  // Two numbers rather than a decimal: "1 bubble every 3 seconds" is how the
+  // rate is actually read off the counter.
+  function bubbleFields() {
+    var g = el("div", "timepair");
+    g.appendChild(el("span", "lab", "Bubble rate"));
+    var cols = el("div", "cols");
+
+    [["bubbles", "bubbleCount", 1, 10], ["every (secs)", "bubbleSeconds", 1, 10]].forEach(function (x) {
+      var cell = el("div");
+      var l = el("label", null, x[0]);
+      l.setAttribute("for", "b_" + x[1]);
+      cell.appendChild(l);
+      var i = document.createElement("input");
+      i.type = "number";
+      i.id = "b_" + x[1];
+      i.min = x[2]; i.max = x[3]; i.step = 1;
+      i.value = draft[x[1]];
+      i.oninput = i.onchange = function () { draft[x[1]] = Number(i.value); };
+      cell.appendChild(i);
+      cols.appendChild(cell);
+    });
+    g.appendChild(cols);
+    return g;
+  }
+
+  function lightFields() {
+    var g = el("div", "timepair");
+    g.appendChild(el("span", "lab", "Light intensity"));
+    var cols = el("div", "cols");
+
+    [["setting", "lightValue"], ["of", "lightScale"]].forEach(function (x) {
+      var cell = el("div");
+      var l = el("label", null, x[0]);
+      l.setAttribute("for", "l_" + x[1]);
+      cell.appendChild(l);
+      var i = document.createElement("input");
+      i.type = "number";
+      i.id = "l_" + x[1];
+      i.min = 1; i.max = 100; i.step = 1;
+      i.value = draft[x[1]];
+      i.oninput = i.onchange = function () { draft[x[1]] = Number(i.value); };
+      cell.appendChild(i);
+      cols.appendChild(cell);
+    });
+    g.appendChild(cols);
+    var hint = el("p", "mathline", "Scale of your fixture — 6 for a Twinstar's six steps, 100 for a percentage dial.");
+    g.appendChild(hint);
+    return g;
+  }
+
+  function syncNumberDraft() {
+    [["b_bubbleCount", "bubbleCount"], ["b_bubbleSeconds", "bubbleSeconds"],
+     ["l_lightValue", "lightValue"], ["l_lightScale", "lightScale"]].forEach(function (p) {
+      var node = document.getElementById(p[0]);
+      if (node && node.value !== "") draft[p[1]] = Number(node.value);
+    });
+  }
+
   function conditionsPanel(form, refresh, tankId) {
     var p = el("div", "panel");
     p.appendChild(el("div", "lab", "CO₂ and light"));
@@ -1570,18 +1941,17 @@
           cell.appendChild(l);
           var i = document.createElement("input");
           i.type = "time";
+          i.step = 3600;
           i.id = x[1];
           i.value = draft[x[1]];
-          i.onchange = function () { draft[x[1]] = i.value; };
+          i.oninput = i.onchange = function () { draft[x[1]] = i.value; };
           cell.appendChild(i);
           cols.appendChild(cell);
         });
         g.appendChild(cols);
         p.appendChild(g);
       });
-      p.appendChild(sliderField("Bubble rate", 0.5, 6, 0.5, draft.bubble,
-        function (v) { return v + " bps"; },
-        function (v) { draft.bubble = v; }));
+      p.appendChild(bubbleFields());
       var done = el("button", "sheetlink", "Lock these in");
       done.onclick = function () { draft.unlocked = false; refresh(); };
       p.appendChild(done);
@@ -1594,7 +1964,8 @@
       });
       var br = el("div", "winrow");
       br.appendChild(el("span", null, "Bubble rate"));
-      br.appendChild(el("span", null, draft.bubble ? draft.bubble + " bps" : "not set"));
+      br.appendChild(el("span", null, bubbleLabel(
+        draft.bubbleSeconds ? { count: draft.bubbleCount, seconds: draft.bubbleSeconds } : null)));
       p.appendChild(br);
 
       var lock = el("div", "locked");
@@ -1611,11 +1982,22 @@
     var s = schedule(tankId);
     draft.co2On = s.co2On; draft.co2Off = s.co2Off;
     draft.lightOn = s.lightOn; draft.lightOff = s.lightOff;
-    draft.bubble = Number(settingValue(tankId, "bubble_rate", 2));
+    var b = bubbleOf(tankId);
+    draft.bubbleCount = b ? b.count : 1;
+    draft.bubbleSeconds = b ? b.seconds : 1;
     draft.unlocked = false;
   }
 
+  function syncTimeDraft() {
+    ["co2On", "co2Off", "lightOn", "lightOff"].forEach(function (k) {
+      var node = document.getElementById(k) || document.getElementById("c_" + k);
+      if (node && node.value) draft[k] = node.value;
+    });
+  }
+
   function conditionEntries(tankId, ts) {
+    syncTimeDraft();
+    syncNumberDraft();
     var cur = schedule(tankId, ts);
     var out = [];
     [["co2On", "co2_on"], ["co2Off", "co2_off"], ["lightOn", "light_on"], ["lightOff", "light_off"]]
@@ -1625,10 +2007,13 @@
             data: { setting: x[1], value: draft[x[0]], unit: "time" }, note: "" });
         }
       });
-    var curBubble = Number(settingValue(tankId, "bubble_rate", null, ts));
-    if (draft.bubble && draft.bubble !== curBubble) {
+    var cb = bubbleOf(tankId, ts);
+    if (draft.bubbleCount && draft.bubbleSeconds &&
+        (!cb || cb.count !== draft.bubbleCount || cb.seconds !== draft.bubbleSeconds)) {
       out.push({ id: uid(), ts: ts, tank: tankId, kind: "setting",
-        data: { setting: "bubble_rate", value: draft.bubble, unit: "bps" }, note: "" });
+        data: { setting: "bubble_count", value: draft.bubbleCount, unit: "bubbles" }, note: "" });
+      out.push({ id: uid(), ts: ts, tank: tankId, kind: "setting",
+        data: { setting: "bubble_seconds", value: draft.bubbleSeconds, unit: "secs" }, note: "" });
     }
     return out;
   }
@@ -1738,7 +2123,7 @@
       if (plants.length) {
         tf.appendChild(chipRow(
           plants.map(function (p) {
-            return { id: p.species, label: pretty(p.species) + (p.since < 9999 ? " · " + p.since + "d" : "") };
+            return { id: p.species, label: plantName(p.species) + (p.since < 9999 ? " · " + p.since + "d" : "") };
           }),
           draft.trims,
           function (id) {
@@ -1987,42 +2372,141 @@
   }
 
   function plantModal() {
-    draft = { when: nowLocal(), event: "added", species: "", note: "" };
-    openModal("Plants", activeTank().name, function (form, refresh) {
+    var tank = activeTank();
+    draft = { when: nowLocal(), event: "added", species: "", raw: "", matched: null, note: "" };
+
+    openModal("Plants", tank.name, function (form, refresh) {
       var f1 = labField("What happened");
       f1.appendChild(chipRow(
         [{ id: "added", label: "Added" }, { id: "removed", label: "Removed" }],
         [draft.event], function (id) { draft.event = id; refresh(); }));
       form.appendChild(f1);
 
-      var existing = rosterOf(activeTank().id, "plant");
-      if (draft.event === "removed" && existing.length) {
-        var f0 = labField("In the tank");
+      // Existing species first — picking one is what makes duplicates impossible.
+      var existing = rosterOf(tank.id, "plant").filter(function (p) { return p.count > 0; });
+      if (existing.length) {
+        var f0 = labField("Already in the tank");
         f0.appendChild(chipRow(
-          existing.map(function (p) { return { id: p.species, label: pretty(p.species) }; }),
-          [slug(draft.species)],
-          function (id) { draft.species = pretty(id); refresh(); }));
+          existing.map(function (p) { return { id: p.species, label: plantName(p.species) }; }),
+          draft.species ? [draft.species] : [],
+          function (id) {
+            draft.species = draft.species === id ? "" : id;
+            draft.raw = ""; draft.matched = null;
+            refresh();
+          }));
         form.appendChild(f0);
       }
 
-      var f2 = el("div", "field");
-      var l2 = el("label", null, "Species");
-      l2.setAttribute("for", "psp");
-      f2.appendChild(l2);
-      var i2 = document.createElement("input");
-      i2.type = "text"; i2.id = "psp"; i2.value = draft.species; i2.placeholder = "Monte Carlo";
-      i2.oninput = function () { draft.species = i2.value; };
-      f2.appendChild(i2);
-      form.appendChild(f2);
+      if (draft.event === "added") {
+        var f2 = el("div", "field");
+        var l2 = el("label", null, existing.length ? "Or paste a new one" : "Paste the product name");
+        l2.setAttribute("for", "psp");
+        f2.appendChild(l2);
+        var i2 = document.createElement("input");
+        i2.type = "text";
+        i2.id = "psp";
+        i2.value = draft.raw;
+        i2.placeholder = "IC030 ADA Tissue Culture - Staurogyne repens";
+        i2.oninput = function () {
+          draft.raw = i2.value;
+          draft.matched = i2.value.trim() ? matchPlant(i2.value) : null;
+          if (draft.matched) draft.species = draft.matched.key;
+          var out = document.getElementById("pmatch");
+          if (out) out.textContent = matchText(draft.matched);
+        };
+        f2.appendChild(i2);
+        var m = el("p", "mathline", matchText(draft.matched));
+        m.id = "pmatch";
+        f2.appendChild(m);
+        form.appendChild(f2);
+      }
 
       whenField(form);
       noteField(form);
     }, function () {
-      if (!draft.species.trim()) { toast("Name the plant."); return; }
+      if (!draft.species) { toast("Pick or paste a plant."); return; }
       commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "plant",
-        data: { event: draft.event, species: slug(draft.species) },
+        data: { event: draft.event, species: draft.species },
         note: draft.note || "" }], "Plant logged.");
     });
+  }
+
+  function matchText(m) {
+    if (!m) return "";
+    if (m.confidence === "exact") return "Detected: " + m.name;
+    if (m.confidence === "guess") return "Best guess: " + m.name + " — check this";
+    return "Not in the table — saving as \u201c" + m.name + "\u201d";
+  }
+
+  function plantName(key) {
+    for (var i = 0; i < PLANTS.length; i++) if (PLANTS[i].key === key) return PLANTS[i].name;
+    return pretty(key);
+  }
+
+  /* ---- merging species that were entered under different names ---- */
+
+  function renamePlantModal(tank) {
+    var species = rosterOf(tank.id, "plant");
+    draft = { from: species.length ? species[0].species : "", raw: "", matched: null };
+
+    openModal("Merge plants", "Point one species at another", function (form, refresh) {
+      var f1 = labField("Rename this");
+      f1.appendChild(chipRow(
+        species.map(function (p) { return { id: p.species, label: plantName(p.species) }; }),
+        [draft.from], function (id) { draft.from = id; refresh(); }));
+      form.appendChild(f1);
+
+      var f2 = labField("Into");
+      var others = species.filter(function (p) { return p.species !== draft.from; });
+      if (others.length) {
+        f2.appendChild(chipRow(
+          others.map(function (p) { return { id: p.species, label: plantName(p.species) }; }),
+          draft.matched ? [draft.matched.key] : [],
+          function (id) { draft.matched = { key: id, name: plantName(id) }; draft.raw = ""; refresh(); }));
+      }
+      form.appendChild(f2);
+
+      var f3 = el("div", "field");
+      var l3 = el("label", null, "Or paste the correct name");
+      l3.setAttribute("for", "rsp");
+      f3.appendChild(l3);
+      var i3 = document.createElement("input");
+      i3.type = "text";
+      i3.id = "rsp";
+      i3.value = draft.raw;
+      i3.oninput = function () {
+        draft.raw = i3.value;
+        draft.matched = i3.value.trim() ? matchPlant(i3.value) : null;
+        var out = document.getElementById("rmatch");
+        if (out) out.textContent = matchText(draft.matched);
+      };
+      f3.appendChild(i3);
+      var m = el("p", "mathline", matchText(draft.matched));
+      m.id = "rmatch";
+      f3.appendChild(m);
+      form.appendChild(f3);
+
+      var c = el("div", "caution");
+      c.innerHTML = "<strong>Every entry moves.</strong> Additions, removals and trims for the old name are rewritten, so counts and trim history combine.";
+      form.appendChild(c);
+    }, function () {
+      if (!draft.from || !draft.matched) { toast("Pick both sides."); return; }
+      if (draft.from === draft.matched.key) { toast("Those are the same plant."); return; }
+
+      var moving = tankEntries(tank.id).filter(function (e) {
+        return e.kind === "plant" && e.data.species === draft.from;
+      });
+      if (!moving.length) { closeModal(); toast("Nothing to move."); return; }
+
+      var target = draft.matched.key;
+      closeModal();
+      moving.forEach(function (e) {
+        e.data.species = target;
+        postRows(toRows(e), "replace", e.id).catch(function () {});
+      });
+      render();
+      toast(moving.length + " entries merged.");
+    }, "Merge");
   }
 
   function settingModal() {
