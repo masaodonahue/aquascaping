@@ -390,11 +390,18 @@
     { id: "yellow", label: "Yellow", hint: "too much", color: "#EFC24F" }
   ];
 
+  // Only filter_pipes, reactor and glass carry a cadence. The rest are
+  // measured after the fact — logging them is the point, not scheduling them.
+  // label is the chip; done is how the entry reads afterwards. Not every task
+  // is a cleaning, so the past tense can't be assembled from the label.
   var MAINTENANCE = [
-    { id: "filter_pipes", label: "Filter & pipes" },
-    { id: "reactor", label: "Reactor" },
-    { id: "glass", label: "Glass" },
-    { id: "co2_refill", label: "CO₂ refill" }
+    { id: "filter_pipes", label: "Filter & pipes", done: "Filter & pipes cleaned" },
+    { id: "reactor", label: "Reactor", done: "Reactor cleaned" },
+    { id: "glass", label: "Glass", done: "Glass cleaned" },
+    { id: "hardscape", label: "Hardscape", done: "Hardscape cleaned" },
+    { id: "co2_refill", label: "CO₂ refill", done: "CO₂ cylinder refilled" },
+    { id: "purigen_regen", label: "Purigen regen", done: "Purigen regenerated" },
+    { id: "purigen_replace", label: "Purigen swap", done: "Purigen replaced" }
   ];
 
   var SETTINGS = [
@@ -1038,7 +1045,9 @@
       return b || "Note";
     }
     if (e.kind === "maintenance") {
-      for (var i = 0; i < MAINTENANCE.length; i++) if (MAINTENANCE[i].id === e.data.task) return MAINTENANCE[i].label + " cleaned";
+      for (var i = 0; i < MAINTENANCE.length; i++) {
+        if (MAINTENANCE[i].id === e.data.task) return MAINTENANCE[i].done;
+      }
       return pretty(e.data.task);
     }
     if (e.kind === "livestock") return e.data.event + " · " + e.data.count + " " + pretty(e.data.species);
@@ -1381,7 +1390,18 @@
 
     var active = FILTERS.filter(function (f) { return f.id === ui.filter; })[0] || FILTERS[0];
     var q = ui.search.trim().toLowerCase();
-    var list = tankEntries(tank.id).filter(function (e) {
+
+    // Settings are written every save so nothing is lost, but History only
+    // shows the ones that actually moved.
+    var seenSetting = {};
+    var list = tankEntries(tank.id).slice().reverse().filter(function (e) {
+      if (e.kind !== "setting") return true;
+      var k = e.data.setting;
+      var v = String(e.data.value);
+      if (seenSetting[k] === v) return false;
+      seenSetting[k] = v;
+      return true;
+    }).reverse().filter(function (e) {
       if (active.kinds && active.kinds.indexOf(e.kind) === -1) return false;
       if (!q) return true;
       return (describe(e) + " " + (e.note || "")).toLowerCase().indexOf(q) !== -1;
@@ -1523,15 +1543,14 @@
     }, function () {
       var ts = fromLocal(draft.when);
       var out = conditionEntries(tank.id, ts);
-      var curL = lightOf(tank.id, ts);
-      if (draft.lightValue && (!curL || curL.value !== draft.lightValue || curL.scale !== draft.lightScale)) {
+      if (draft.lightValue) {
         out.push({ id: uid(), ts: ts, tank: tank.id, kind: "setting",
           data: { setting: "light_value", value: draft.lightValue, unit: "step" }, note: "" });
         out.push({ id: uid(), ts: ts, tank: tank.id, kind: "setting",
-          data: { setting: "light_scale", value: draft.lightScale, unit: "steps" }, note: "" });
+          data: { setting: "light_scale", value: draft.lightScale || 6, unit: "steps" }, note: "" });
       }
-      if (out.length) commit(out, "Conditions updated.");
-      else { closeModal(); toast("Nothing changed."); }
+      if (!out.length) { toast("Nothing to save — fill something in."); return; }
+      commit(out, "Saved " + out.length + " settings.");
     }, "Save conditions");
   }
 
@@ -1998,18 +2017,19 @@
   function conditionEntries(tankId, ts) {
     syncTimeDraft();
     syncNumberDraft();
-    var cur = schedule(tankId, ts);
+
+    // Always write what's on screen. Comparing against stored values to decide
+    // whether to save meant any failure to read the inputs back looked exactly
+    // like "you didn't change anything" — which is how this stayed broken.
     var out = [];
     [["co2On", "co2_on"], ["co2Off", "co2_off"], ["lightOn", "light_on"], ["lightOff", "light_off"]]
       .forEach(function (x) {
-        if (draft[x[0]] && draft[x[0]] !== cur[x[0]]) {
-          out.push({ id: uid(), ts: ts, tank: tankId, kind: "setting",
-            data: { setting: x[1], value: draft[x[0]], unit: "time" }, note: "" });
-        }
+        if (!draft[x[0]]) return;
+        out.push({ id: uid(), ts: ts, tank: tankId, kind: "setting",
+          data: { setting: x[1], value: draft[x[0]], unit: "time" }, note: "" });
       });
-    var cb = bubbleOf(tankId, ts);
-    if (draft.bubbleCount && draft.bubbleSeconds &&
-        (!cb || cb.count !== draft.bubbleCount || cb.seconds !== draft.bubbleSeconds)) {
+
+    if (draft.bubbleCount && draft.bubbleSeconds) {
       out.push({ id: uid(), ts: ts, tank: tankId, kind: "setting",
         data: { setting: "bubble_count", value: draft.bubbleCount, unit: "bubbles" }, note: "" });
       out.push({ id: uid(), ts: ts, tank: tankId, kind: "setting",
