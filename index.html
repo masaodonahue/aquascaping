@@ -747,12 +747,14 @@
       if (e.kind !== kind) return;
       var s = e.data.species;
       if (!s) return;
-      if (!(s in counts)) counts[s] = 0;
-      if (e.data.event === "added") counts[s] += (e.data.count || 1);
-      else if (e.data.event === "lost" || e.data.event === "removed") counts[s] -= (e.data.count || 1);
+      if (!(s in counts)) counts[s] = { have: 0, added: 0, lost: 0 };
+      var n = e.data.count || 1;
+      if (e.data.event === "added") { counts[s].have += n; counts[s].added += n; }
+      else if (e.data.event === "lost" || e.data.event === "removed") { counts[s].have -= n; counts[s].lost += n; }
     });
-    return Object.keys(counts).filter(function (k) { return counts[k] > 0; })
-      .map(function (k) { return { species: k, count: counts[k] }; });
+    return Object.keys(counts).map(function (k) {
+      return { species: k, count: counts[k].have, added: counts[k].added, lost: counts[k].lost };
+    });
   }
 
   /* ================= due engine ================= */
@@ -919,8 +921,8 @@
 
   var LOG_ROWS = [
     { label: "Water change", desc: "50%, dosing, glass, trim", ic: "waves", open: function () { waterChangeModal(); } },
-    { label: "Drop checker", desc: "Colour and CO\u2082 window", ic: "checker", open: function () { checkerModal(); } },
-    { label: "Observation", desc: "Behaviour and notes", ic: "eye", open: function () { observationModal(); } },
+    { label: "Drop checker", desc: "Color and CO\u2082 window", ic: "checker", open: function () { checkerModal(); } },
+    { label: "Observation", desc: "Behavior and notes", ic: "eye", open: function () { observationModal(); } },
     { label: "Water test", desc: "Ammonia, nitrite, nitrate", ic: "vial", open: function () { testModal(); } },
     { label: "Maintenance", desc: "Filter, pipes, reactor", ic: "sparkle", open: function () { maintenanceModal(); } },
     { label: "Livestock", desc: "Added, lost, molt", ic: "fish", open: function () { livestockModal(); } },
@@ -1317,6 +1319,56 @@
     }, "Save tank");
   }
 
+  function conditionsModal(tank) {
+    draft = { when: nowLocal() };
+    loadConditions(tank.id);
+    draft.unlocked = true;
+    draft.intensity = Number(settingValue(tank.id, "light_intensity", 50));
+
+    openModal("Conditions", tank.name + " \u00b7 CO\u2082, light, dosing rate", function (form) {
+      [["CO\u2082", "co2On", "co2Off"], ["Light", "lightOn", "lightOff"]].forEach(function (pair) {
+        var g = el("div", "timepair");
+        g.appendChild(el("span", "lab", pair[0]));
+        var cols = el("div", "cols");
+        [["on", pair[1]], ["off", pair[2]]].forEach(function (x) {
+          var cell = el("div");
+          var l = el("label", null, x[0]);
+          l.setAttribute("for", "c_" + x[1]);
+          cell.appendChild(l);
+          var i = document.createElement("input");
+          i.type = "time";
+          i.id = "c_" + x[1];
+          i.value = draft[x[1]];
+          i.onchange = function () { draft[x[1]] = i.value; };
+          cell.appendChild(i);
+          cols.appendChild(cell);
+        });
+        g.appendChild(cols);
+        form.appendChild(g);
+      });
+
+      form.appendChild(sliderField("Bubble rate", 0.5, 6, 0.5, draft.bubble,
+        function (v) { return v + " bps"; }, function (v) { draft.bubble = v; }));
+      form.appendChild(sliderField("Light intensity", 10, 100, 5, draft.intensity,
+        function (v) { return v + "%"; }, function (v) { draft.intensity = v; }));
+
+      var c = el("div", "caution");
+      c.innerHTML = "<strong>One variable at a time.</strong> Changing two of these makes the next few weeks of observation unreadable.";
+      form.appendChild(c);
+      whenField(form);
+    }, function () {
+      var ts = fromLocal(draft.when);
+      var out = conditionEntries(tank.id, ts);
+      var curInt = Number(settingValue(tank.id, "light_intensity", null, ts));
+      if (draft.intensity !== curInt) {
+        out.push({ id: uid(), ts: ts, tank: tank.id, kind: "setting",
+          data: { setting: "light_intensity", value: draft.intensity, unit: "%" }, note: "" });
+      }
+      if (out.length) commit(out, "Conditions updated.");
+      else { closeModal(); toast("Nothing changed."); }
+    }, "Save conditions");
+  }
+
   function renderReference(app, tank) {
     var edit = el("button", "datechip", "Edit tank");
     edit.onclick = function () { tankModal(tank); };
@@ -1337,16 +1389,24 @@
       g.appendChild(cell);
     });
     b1.card.appendChild(g);
+    var se = el("button", "sheetlink", "Edit conditions");
+    se.style.marginTop = "14px";
+    se.onclick = function () { conditionsModal(tank); };
+    b1.card.appendChild(se);
     app.appendChild(b1);
 
     var b2 = refBlock("Livestock");
     var lr = rosterOf(tank.id, "livestock");
-    if (lr.length) lr.forEach(function (x) { kv(b2.card, pretty(x.species), String(x.count)); });
+    if (lr.length) lr.forEach(function (x) {
+      var right = String(x.count);
+      if (x.lost) right += "  \u00b7  " + x.lost + " lost of " + x.added;
+      kv(b2.card, pretty(x.species), right, x.count === 0);
+    });
     else b2.card.appendChild(el("p", "empty", "Fills in as you log additions and losses."));
     app.appendChild(b2);
 
     var b3 = refBlock("Plants");
-    var pr = rosterOf(tank.id, "plant");
+    var pr = rosterOf(tank.id, "plant").filter(function (x) { return x.count > 0; });
     if (pr.length) pr.forEach(function (x) {
       var t = lastEntry(tank.id, function (e) { return e.kind === "plant" && e.data.event === "trim" && e.data.species === x.species; });
       kv(b3.card, pretty(x.species), t ? "trimmed " + daysSince(t.ts) + "d ago" : "no trim logged");
@@ -1370,7 +1430,7 @@
     else b5.card.appendChild(el("p", "empty", "No test logged yet."));
     app.appendChild(b5);
 
-    var b6 = refBlock("API colour card");
+    var b6 = refBlock("API color card");
     ["ammonia", "nitrite", "nitrate"].forEach(function (k) {
       b6.card.appendChild(el("span", "lab", k + " (ppm)"));
       var row = el("div", "swatches");
@@ -1632,11 +1692,11 @@
           var pi = document.createElement("input");
           pi.type = "text";
           pi.value = pretty(draft.fertProduct);
-          pi.setAttribute("aria-label", "Fertiliser name");
+          pi.setAttribute("aria-label", "Fertilizer name");
           pi.oninput = function () { draft.fertProduct = slug(pi.value); };
           fp.appendChild(pi);
         } else {
-          var swap = el("button", "sheetlink", "Switched fertiliser?");
+          var swap = el("button", "sheetlink", "Switched fertilizer?");
           swap.onclick = function () { draft.editingProduct = true; refresh(); };
           fp.appendChild(swap);
         }
@@ -1655,7 +1715,7 @@
         function refreshMath() {
           var vol = netVolume(tank.id);
           var sug = suggestedDose(tank.id, draft.iodProduct);
-          if (!vol) { math.className = "mathline"; math.textContent = "no volume measured — log refill litres to enable the check"; return; }
+          if (!vol) { math.className = "mathline"; math.textContent = "no volume measured — log refill liters to enable the check"; return; }
           if (sug == null) { math.className = "mathline"; math.textContent = "no dose rule set for this product"; return; }
           var over = draft.iodAmount / sug;
           math.className = "mathline" + (over > 2 ? " off" : "");
@@ -1667,7 +1727,7 @@
       }
 
       // trim
-      var plants = rosterOf(tank.id, "plant").map(function (p) {
+      var plants = rosterOf(tank.id, "plant").filter(function (p) { return p.count > 0; }).map(function (p) {
         var t = lastEntry(tank.id, function (e) {
           return e.kind === "plant" && e.data.event === "trim" && e.data.species === p.species;
         });
@@ -1695,7 +1755,7 @@
       conditionsPanel(form, refresh, tank.id);
 
       var rf = el("div", "field");
-      var rl = el("label", null, "Litres put back (optional)");
+      var rl = el("label", null, "Liters put back (optional)");
       rl.setAttribute("for", "refill");
       rf.appendChild(rl);
       var ri = document.createElement("input");
@@ -1750,7 +1810,7 @@
     loadConditions(tank.id);
 
     openModal("Drop checker", tank.name, function (form, refresh) {
-      var f = labField("Colour you're reading");
+      var f = labField("Color you're reading");
       var pick = el("div", "picker");
       CHECKER.forEach(function (c) {
         var b = el("button");
@@ -1773,13 +1833,13 @@
       var co2 = elapsed(draft.co2On, draft.co2Off, when);
       var c2 = el("div", "caution");
       c2.innerHTML = co2 != null
-        ? "<strong>" + co2 + "h into the CO₂ window.</strong> The checker lags one to two hours, so this colour reflects roughly " + Math.max(0, co2 - 2) + "h to " + Math.max(0, co2 - 1) + "h in."
+        ? "<strong>" + co2 + "h into the CO₂ window.</strong> The checker lags one to two hours, so this color reflects roughly " + Math.max(0, co2 - 2) + "h to " + Math.max(0, co2 - 1) + "h in."
         : "<strong>Outside the CO₂ window.</strong> Recorded as such — the reading still logs.";
       form.appendChild(c2);
 
       noteField(form);
     }, function () {
-      if (!draft.checker) { toast("Pick a colour."); return; }
+      if (!draft.checker) { toast("Pick a color."); return; }
       var ts = fromLocal(draft.when);
       var when = new Date(ts);
       var out = conditionEntries(state.active, ts);
@@ -1797,7 +1857,7 @@
 
   function testModal() {
     draft = { when: nowLocal(), ammonia: null, nitrite: null, nitrate: null, note: "" };
-    openModal("Water test", activeTank().name + " · match the colour you read", function (form, refresh) {
+    openModal("Water test", activeTank().name + " · match the color you read", function (form, refresh) {
       ["ammonia", "nitrite", "nitrate"].forEach(function (k) {
         var f = labField(k + " (ppm)");
         var row = el("div", "swatches");
@@ -1834,7 +1894,7 @@
       : { when: nowLocal(), behavior: [], species: "", count: 1, note: "" };
 
     openModal("Observation", activeTank().name, function (form, refresh) {
-      var f = labField("Behaviour");
+      var f = labField("Behavior");
       f.appendChild(chipRow(BEHAVIOR, draft.behavior, function (id) {
         var i = draft.behavior.indexOf(id);
         if (i === -1) draft.behavior.push(id); else draft.behavior.splice(i, 1);
@@ -1842,7 +1902,7 @@
       }));
       form.appendChild(f);
 
-      var roster = rosterOf(activeTank().id, "livestock");
+      var roster = rosterOf(activeTank().id, "livestock").filter(function (r) { return r.count > 0; });
       var f2 = labField("Who");
       if (roster.length) {
         f2.appendChild(chipRow(
@@ -2038,7 +2098,7 @@
       whenField(form);
       noteField(form);
       if (entry.kind === "observation") {
-        var edit = el("button", "sheetlink", "Edit behaviour and species");
+        var edit = el("button", "sheetlink", "Edit behavior and species");
         edit.onclick = function () { observationModal(entry); };
         form.appendChild(edit);
       }
