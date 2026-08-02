@@ -235,7 +235,7 @@
     display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
     text-transform: uppercase; color: var(--muted); margin-bottom: var(--s2);
   }
-  input[type=text], input[type=number], input[type=time], input[type=datetime-local], textarea {
+  input[type=text], input[type=number], input[type=time], input[type=datetime-local], select, textarea {
     width: 100%; background: var(--surface); border: 1px solid var(--line);
     border-radius: var(--r-sm); color: var(--ink);
     font-family: var(--sans); font-size: 15px; padding: 12px 14px;
@@ -363,7 +363,7 @@
 
   // Bump on every push. Shown in Reference so "which build are you on" is a
   // question with an answer instead of a guess.
-  var BUILD = "2026-08-02f";
+  var BUILD = "2026-08-02i";
 
   var UI_KEY = "aqualog:ui";
   var QUEUE_KEY = "aqualog:queue";
@@ -593,16 +593,26 @@
     return base;
   }
 
+  // A 404 from Vercel is an HTML page, and r.json() on that produces an
+  // "Unexpected token '<'" that says nothing useful. Name the real problem.
+  function asJson(r, where) {
+    if (r.status === 401) throw new Error("auth");
+    var type = r.headers.get("content-type") || "";
+    if (type.indexOf("application/json") === -1) {
+      throw new Error(where + " returned " + r.status + " " +
+        (r.status === 404 ? "— the function isn't deployed" : "(not JSON)"));
+    }
+    return r.json();
+  }
+
   function postRows(rows, action, id) {
     return fetch("/api/log", {
       method: "POST",
       headers: authHeaders({ "Content-Type": "application/json" }),
       credentials: "same-origin",
       body: JSON.stringify({ rows: rows, action: action || "append", id: id })
-    }).then(function (r) {
-      if (r.status === 401) throw new Error("auth");
-      return r.json();
-    }).then(function (j) { if (!j.ok) throw new Error(j.error || "write failed"); return j; });
+    }).then(function (r) { return asJson(r, "/api/log"); })
+      .then(function (j) { if (!j.ok) throw new Error(j.error || "write failed"); return j; });
   }
 
   function flushQueue() {
@@ -614,10 +624,7 @@
   function load() {
     var ui = readUI();
     return fetch("/api/log", { headers: authHeaders({}), credentials: "same-origin" })
-      .then(function (r) {
-        if (r.status === 401) throw new Error("auth");
-        return r.json();
-      })
+      .then(function (r) { return asJson(r, "/api/log"); })
       .then(function (j) {
         if (!j.ok) throw new Error(j.error || "read failed");
         var st = fromRows(j.rows || []);
@@ -665,6 +672,7 @@
       e.data.species = m.slice(i + 1);
       e.data.count = numish(v);
     } else if (e.kind === "setting") {
+      if (!m) return;                    // a stray row with no metric name
       e.data.setting = m;
       e.data.value = (r.unit === "time" || r.unit === "ml_per_l") ? String(v) : numish(v);
       e.data.unit = r.unit;
@@ -1408,6 +1416,7 @@
     var seenSetting = {};
     var list = tankEntries(tank.id).slice().reverse().filter(function (e) {
       if (e.kind !== "setting") return true;
+      if (!e.data.setting) return false;
       var k = e.data.setting;
       var v = String(e.data.value);
       if (seenSetting[k] === v) return false;
@@ -1528,17 +1537,12 @@
         g.appendChild(el("span", "lab", pair[0]));
         var cols = el("div", "cols");
         [["on", pair[1]], ["off", pair[2]]].forEach(function (x) {
+          var key = x[1];
           var cell = el("div");
           var lab = el("label", null, x[0]);
-          lab.setAttribute("for", "c_" + x[1]);
+          lab.setAttribute("for", "c_" + key);
           cell.appendChild(lab);
-          var i = document.createElement("input");
-          i.type = "time";
-          i.step = 3600;
-          i.id = "c_" + x[1];
-          i.value = draft[x[1]];
-          i.oninput = i.onchange = function () { draft[x[1]] = i.value; };
-          cell.appendChild(i);
+          cell.appendChild(hourSelect("c_" + key, draft[key], function (v) { draft[key] = v; }));
           cols.appendChild(cell);
         });
         g.appendChild(cols);
@@ -1561,6 +1565,8 @@
         out.push({ id: uid(), ts: ts, tank: tank.id, kind: "setting",
           data: { setting: "light_scale", value: draft.lightScale || 6, unit: "steps" }, note: "" });
       }
+      var missing = ["co2On", "co2Off", "lightOn", "lightOff"].filter(function (k) { return !draft[k]; });
+      if (missing.length) { toast(missing.length + " time field(s) still blank."); return; }
       if (!out.length) { toast("Nothing to save — fill something in."); return; }
       commit(out, "Saved " + out.length + " settings.");
     }, "Save conditions");
@@ -1814,10 +1820,6 @@
 
     app.appendChild(cylinderBlock(tank));
 
-    var diag = el("button", "sheetlink", "Build " + BUILD + " · diagnostics");
-    diag.style.marginTop = "8px";
-    diag.onclick = function () { diagnosticsModal(tank); };
-    app.appendChild(diag);
 
     var b4 = refBlock("Cadence");
     CADENCE.forEach(function (c) { kv(b4.card, c.label, "every " + cadenceOf(tank.id, c.key, c.def) + " days"); });
@@ -1850,6 +1852,11 @@
       b6.card.appendChild(w);
     });
     app.appendChild(b6);
+
+    var diag = el("button", "sheetlink", "Build " + BUILD + " · diagnostics");
+    diag.style.marginTop = "8px";
+    diag.onclick = function () { diagnosticsModal(tank); };
+    app.appendChild(diag);
   }
 
   /* ================= modal plumbing ================= */
@@ -1961,6 +1968,31 @@
 
   // Two numbers rather than a decimal: "1 bubble every 3 seconds" is how the
   // rate is actually read off the counter.
+  /**
+   * A <select> instead of <input type="time">. The native time picker was
+   * returning empty on save — three fixes downstream of that missed the cause.
+   * Hours are all this app ever needed anyway.
+   */
+  function hourSelect(id, value, onChange) {
+    var sel = document.createElement("select");
+    sel.id = id;
+    var blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "—";
+    sel.appendChild(blank);
+    for (var h = 0; h < 24; h++) {
+      var hh = (h < 10 ? "0" : "") + h + ":00";
+      var o = document.createElement("option");
+      o.value = hh;
+      o.textContent = hh;
+      if (value === hh) o.selected = true;
+      sel.appendChild(o);
+    }
+    sel.value = value || "";
+    sel.onchange = function () { onChange(sel.value); };
+    return sel;
+  }
+
   function bubbleFields() {
     var g = el("div", "timepair");
     g.appendChild(el("span", "lab", "Bubble rate"));
@@ -2027,17 +2059,12 @@
         g.appendChild(el("span", "lab", pair[0]));
         var cols = el("div", "cols");
         [["on", pair[1]], ["off", pair[2]]].forEach(function (x) {
+          var key = x[1];
           var cell = el("div");
           var l = el("label", null, x[0]);
-          l.setAttribute("for", x[1]);
+          l.setAttribute("for", key);
           cell.appendChild(l);
-          var i = document.createElement("input");
-          i.type = "time";
-          i.step = 3600;
-          i.id = x[1];
-          i.value = draft[x[1]];
-          i.oninput = i.onchange = function () { draft[x[1]] = i.value; };
-          cell.appendChild(i);
+          cell.appendChild(hourSelect(key, draft[key], function (v) { draft[key] = v; }));
           cols.appendChild(cell);
         });
         g.appendChild(cols);
@@ -2828,7 +2855,7 @@
 
   // Ask the server whether sign-in is configured, then start.
   fetch("/api/config")
-    .then(function (r) { return r.json(); })
+    .then(function (r) { return asJson(r, "/api/config"); })
     .then(function (cfg) {
       CLIENT_ID = String(cfg.clientId || "").trim();
       AUTH_ON = CLIENT_ID.indexOf("apps.googleusercontent.com") !== -1;
