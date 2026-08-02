@@ -350,7 +350,6 @@
   // Fetched from /api/config at boot, so it lives only in Vercel's env vars.
   var CLIENT_ID = "";
   var AUTH_ON = false;
-  var TOKEN_KEY = "aqualog:idt";
 
   var idToken = null;
 
@@ -456,6 +455,7 @@
     return fetch("/api/log", {
       method: "POST",
       headers: authHeaders({ "Content-Type": "application/json" }),
+      credentials: "same-origin",
       body: JSON.stringify({ rows: rows, action: action || "append", id: id })
     }).then(function (r) {
       if (r.status === 401) throw new Error("auth");
@@ -471,7 +471,7 @@
 
   function load() {
     var ui = readUI();
-    return fetch("/api/log", { headers: authHeaders({}) })
+    return fetch("/api/log", { headers: authHeaders({}), credentials: "same-origin" })
       .then(function (r) {
         if (r.status === 401) throw new Error("auth");
         return r.json();
@@ -2137,18 +2137,12 @@
     }
     window.google.accounts.id.initialize({
       client_id: CLIENT_ID,
+      auto_select: true,
+      itp_support: true,
       callback: function (resp) {
+        // Used once to mint the session cookie, then discarded.
         idToken = resp.credential;
-        try { sessionStorage.setItem(TOKEN_KEY, idToken); } catch (err) {}
-        // Ask the server whether sign-in is configured, then start.
-  fetch("/api/config")
-    .then(function (r) { return r.json(); })
-    .then(function (cfg) {
-      CLIENT_ID = String(cfg.clientId || "").trim();
-      AUTH_ON = CLIENT_ID.indexOf("apps.googleusercontent.com") !== -1;
-    })
-    .catch(function () { AUTH_ON = false; })
-    .then(function () { start(); });
+        start();
       }
     });
     var host = document.getElementById("gbtn");
@@ -2173,11 +2167,8 @@
   }
 
   function start() {
-    if (AUTH_ON && !idToken) {
-      try { idToken = sessionStorage.getItem(TOKEN_KEY); } catch (err) { idToken = null; }
-    }
-    if (AUTH_ON && !idToken) return showGate();
-
+    // Try the request first — a valid session cookie means no sign-in at all.
+    // The gate only appears when the server actually rejects us.
     load().then(function (s) {
       state = s;
       render();
@@ -2186,7 +2177,6 @@
       // ID tokens last an hour, so expiry is routine rather than a failure.
       if (AUTH_ON && (String(err.message) === "auth" || /token|signed in|allowed/.test(String(err.message)))) {
         idToken = null;
-        try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
         return showGate(String(err.message) === "auth" ? "" : err.message);
       }
       showError(err);
