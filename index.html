@@ -1,5 +1,13 @@
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6F5F1">
+<link rel="manifest" href="/manifest.webmanifest">
+
+<!-- iOS reads these rather than the manifest for home screen installs -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Aquascape">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <title>Aquascape Log</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -352,6 +360,10 @@
   var AUTH_ON = false;
 
   var idToken = null;
+
+  // Bump on every push. Shown in Reference so "which build are you on" is a
+  // question with an answer instead of a guess.
+  var BUILD = "2026-08-02f";
 
   var UI_KEY = "aqualog:ui";
   var QUEUE_KEY = "aqualog:queue";
@@ -1672,6 +1684,62 @@
     }, "Save");
   }
 
+  /**
+   * Exists because two remote fixes for the schedule failed. Shows what the app
+   * actually resolved, so a screenshot answers the question directly.
+   */
+  function diagnosticsModal(tank) {
+    openModal("Diagnostics", "Build " + BUILD, function (form) {
+      var card = el("div", "card");
+      function row(k, v) {
+        var r = el("div", "kv");
+        r.appendChild(el("span", null, k));
+        r.appendChild(el("span", null, String(v)));
+        card.appendChild(r);
+      }
+
+      row("Active tank id", tank.id);
+      row("Tank name", tank.name);
+      row("Entries loaded", state.entries.length);
+      row("For this tank", tankEntries(tank.id).length);
+
+      var settings = tankEntries(tank.id).filter(function (e) { return e.kind === "setting"; });
+      row("Setting entries", settings.length);
+
+      var sch = schedule(tank.id);
+      row("co2_on resolves to", sch.co2On === "" ? "(empty)" : sch.co2On);
+      row("co2_off resolves to", sch.co2Off === "" ? "(empty)" : sch.co2Off);
+      row("light_on resolves to", sch.lightOn === "" ? "(empty)" : sch.lightOn);
+      row("light_off resolves to", sch.lightOff === "" ? "(empty)" : sch.lightOff);
+      form.appendChild(card);
+
+      form.appendChild(el("h2", null, ""));
+      var lab = el("div", "grouplabel", "Newest value per setting, any tank");
+      form.appendChild(lab);
+
+      var card2 = el("div", "card");
+      var seen = {};
+      state.entries.slice().sort(function (a, b) { return new Date(b.ts) - new Date(a.ts); })
+        .forEach(function (e) {
+          if (e.kind !== "setting") return;
+          var k = e.data.setting + " [" + e.tank + "]";
+          if (seen[k]) return;
+          seen[k] = true;
+          var r = el("div", "kv");
+          r.appendChild(el("span", null, k));
+          r.appendChild(el("span", null, JSON.stringify(e.data.value)));
+          card2.appendChild(r);
+        });
+      if (!Object.keys(seen).length) card2.appendChild(el("p", "empty", "No setting entries at all."));
+      form.appendChild(card2);
+
+      var reload = el("button", "primary", "Reload from sheet");
+      reload.style.marginTop = "18px";
+      reload.onclick = function () { location.reload(); };
+      form.appendChild(reload);
+    }, closeModal, "Close", true);
+  }
+
   function rosterHistoryModal(tank, kind, title) {
     openModal(title, tank.name, function (form) {
       var list = tankEntries(tank.id).filter(function (e) { return e.kind === kind; });
@@ -1745,6 +1813,11 @@
     app.appendChild(b3);
 
     app.appendChild(cylinderBlock(tank));
+
+    var diag = el("button", "sheetlink", "Build " + BUILD + " · diagnostics");
+    diag.style.marginTop = "8px";
+    diag.onclick = function () { diagnosticsModal(tank); };
+    app.appendChild(diag);
 
     var b4 = refBlock("Cadence");
     CADENCE.forEach(function (c) { kv(b4.card, c.label, "every " + cadenceOf(tank.id, c.key, c.def) + " days"); });
@@ -2744,6 +2817,12 @@
         return showGate(String(err.message) === "auth" ? "" : err.message);
       }
       showError(err);
+    });
+  }
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("/sw.js").catch(function () {});
     });
   }
 
