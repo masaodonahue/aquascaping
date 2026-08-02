@@ -363,7 +363,7 @@
 
   // Bump on every push. Shown in Reference so "which build are you on" is a
   // question with an answer instead of a guess.
-  var BUILD = "2026-08-02i";
+  var BUILD = "2026-08-02j";
 
   var UI_KEY = "aqualog:ui";
   var QUEUE_KEY = "aqualog:queue";
@@ -1542,7 +1542,7 @@
           var lab = el("label", null, x[0]);
           lab.setAttribute("for", "c_" + key);
           cell.appendChild(lab);
-          cell.appendChild(hourSelect("c_" + key, draft[key], function (v) { draft[key] = v; }));
+          cell.appendChild(timeField("c_" + key, draft[key], function (v) { draft[key] = v; }));
           cols.appendChild(cell);
         });
         g.appendChild(cols);
@@ -1582,11 +1582,13 @@
         seen[e.data.product] = { product: e.data.product, unit: e.data.unit, amount: e.data.amount };
       }
     });
+    // Presets are always offered, not just when nothing has been dosed yet —
+    // otherwise iodide is invisible until the first time you log it.
+    [{ product: "tropica_specialised", unit: "pumps", amount: 2 },
+     { product: "seachem_reef_iodide", unit: "ml", amount: 0.5 }].forEach(function (p) {
+      if (!seen[p.product]) seen[p.product] = p;
+    });
     var known = Object.keys(seen).map(function (k) { return seen[k]; });
-    if (!known.length) {
-      known = [{ product: "tropica_specialised", unit: "pumps", amount: 2 },
-               { product: "seachem_reef_iodide", unit: "ml", amount: 0.5 }];
-    }
 
     draft = { when: nowLocal(), product: known[0].product, unit: known[0].unit,
               amount: known[0].amount, note: "" };
@@ -1973,6 +1975,45 @@
    * returning empty on save — three fixes downstream of that missed the cause.
    * Hours are all this app ever needed anyway.
    */
+  /** Accepts "15", "15:00", "3pm", "3:30 PM" — returns "HH:MM" or "". */
+  function parseTime(v) {
+    if (!v) return "";
+    var t = String(v).trim().toLowerCase().replace(/\s+/g, "");
+    var pm = /pm$/.test(t), am = /am$/.test(t);
+    t = t.replace(/[ap]m$/, "");
+    var h, m = 0;
+    if (t.indexOf(":") !== -1) {
+      var p = t.split(":");
+      h = parseInt(p[0], 10);
+      m = parseInt(p[1], 10) || 0;
+    } else {
+      h = parseInt(t, 10);
+    }
+    if (isNaN(h)) return "";
+    if (pm && h < 12) h += 12;
+    if (am && h === 12) h = 0;
+    if (h < 0 || h > 23 || m < 0 || m > 59) return "";
+    return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
+  }
+
+  function timeField(id, value, onChange) {
+    var i = document.createElement("input");
+    i.type = "text";
+    i.id = id;
+    i.inputMode = "numeric";
+    i.autocomplete = "off";
+    i.placeholder = "15:00";
+    i.value = value || "";
+    function commit() {
+      var norm = parseTime(i.value);
+      i.value = norm;
+      onChange(norm);
+    }
+    i.onblur = commit;
+    i.onchange = commit;
+    return i;
+  }
+
   function hourSelect(id, value, onChange) {
     var sel = document.createElement("select");
     sel.id = id;
@@ -2064,7 +2105,7 @@
           var l = el("label", null, x[0]);
           l.setAttribute("for", key);
           cell.appendChild(l);
-          cell.appendChild(hourSelect(key, draft[key], function (v) { draft[key] = v; }));
+          cell.appendChild(timeField(key, draft[key], function (v) { draft[key] = v; }));
           cols.appendChild(cell);
         });
         g.appendChild(cols);
@@ -2110,7 +2151,10 @@
   function syncTimeDraft() {
     ["co2On", "co2Off", "lightOn", "lightOff"].forEach(function (k) {
       var node = document.getElementById(k) || document.getElementById("c_" + k);
-      if (node && node.value) draft[k] = node.value;
+      if (node && node.value) {
+        var norm = parseTime(node.value);
+        if (norm) draft[k] = norm;
+      }
     });
   }
 
@@ -2468,8 +2512,20 @@
         [draft.event], function (id) { draft.event = id; refresh(); }));
       form.appendChild(f1);
 
+      // Same reason as plants: retyping a species is how a loss ends up
+      // failing to cancel its addition.
+      var living = rosterOf(activeTank().id, "livestock").filter(function (r) { return r.count > 0; });
+      if (living.length) {
+        var f0 = labField("Already in the tank");
+        f0.appendChild(chipRow(
+          living.map(function (r) { return { id: r.species, label: pretty(r.species) }; }),
+          [slug(draft.species)],
+          function (id) { draft.species = pretty(id); refresh(); }));
+        form.appendChild(f0);
+      }
+
       var f2 = el("div", "field");
-      var l2 = el("label", null, "Species");
+      var l2 = el("label", null, living.length ? "Or a new species" : "Species");
       l2.setAttribute("for", "sp");
       f2.appendChild(l2);
       var i2 = document.createElement("input");
