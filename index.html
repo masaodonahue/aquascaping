@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aquascape Log</title>
 
-link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
@@ -26,7 +26,7 @@ link rel="preconnect" href="https://fonts.googleapis.com">
     --sans: "Zen Kaku Gothic New", ui-sans-serif, system-ui, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 
-    --s1: 4px; --s2: 8px; --s3: 16px; --s4: 24px; --s5: 32px;
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 18px; --s5: 28px;
     --r: 16px; --r-sm: 10px;
     --shadow: 0 1px 2px rgba(22,24,26,.03), 0 1px 12px rgba(22,24,26,.04);
   }
@@ -40,12 +40,12 @@ link rel="preconnect" href="https://fonts.googleapis.com">
   button { font: inherit; color: inherit; cursor: pointer; }
   :focus-visible { outline: 2px solid var(--good); outline-offset: 3px; border-radius: 3px; }
 
-  .app { max-width: 440px; margin: 0 auto; padding: var(--s5) var(--s4) 120px; }
+  .app { max-width: 440px; margin: 0 auto; padding: var(--s4) var(--s4) 104px; }
 
   /* page head */
   .pagehead { margin-bottom: var(--s4); }
   .pagehead h1 {
-    font-family: var(--serif); font-weight: 500; font-size: 34px;
+    font-family: var(--serif); font-weight: 500; font-size: 30px;
     letter-spacing: -.01em; margin: 0; color: var(--ink);
   }
   .pagehead .sub { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: var(--s1); }
@@ -61,10 +61,10 @@ link rel="preconnect" href="https://fonts.googleapis.com">
   }
 
   /* group label */
-  .grouplabel {
+    .grouplabel {
     font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
     text-transform: uppercase; color: var(--muted);
-    margin: var(--s4) 0 var(--s2);
+    margin: var(--s3) 0 var(--s2);
   }
   .grouplabel:first-of-type { margin-top: 0; }
 
@@ -73,20 +73,31 @@ link rel="preconnect" href="https://fonts.googleapis.com">
     width: 100%; text-align: left;
     background: var(--surface); border: 1px solid var(--line);
     border-radius: var(--r); box-shadow: var(--shadow);
-    padding: var(--s3); margin-bottom: var(--s2);
-    display: flex; align-items: center; gap: var(--s3);
+    margin-bottom: var(--s2);
+    display: flex; align-items: stretch;
     position: relative; overflow: hidden;
     transition: border-color .15s;
   }
+  .rowmain {
+    flex: 1; min-width: 0; background: none; border: none; text-align: left;
+    padding: var(--s3); display: flex; align-items: center; gap: var(--s3);
+  }
+  .rowacts { display: flex; align-items: center; gap: var(--s1); padding-right: var(--s2); }
+  .rowacts .act {
+    background: var(--good-tint); border: none; border-radius: 10px;
+    width: 36px; height: 36px; display: grid; place-items: center; color: var(--good);
+  }
+  .rowacts .act svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .rowcard.attention .act { background: #F4E8D2; color: var(--warn); }
   .rowcard:hover { border-color: #D9D6CD; }
   .rowcard.attention { background: var(--warn-tint); border-color: #EBDCC0; }
 
   .icontile {
-    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 12px;
+    flex: 0 0 auto; width: 40px; height: 40px; border-radius: 11px;
     background: var(--good-tint); color: var(--good);
     display: grid; place-items: center;
   }
-  .icontile svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  .icontile svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
   .rowcard.attention .icontile { background: #F4E8D2; color: var(--warn); }
 
   .rowbody { flex: 1; min-width: 0; }
@@ -107,17 +118,17 @@ link rel="preconnect" href="https://fonts.googleapis.com">
   .meter i.late { background: var(--warn); }
 
   /* detail blocks */
-  .block { margin-bottom: var(--s4); }
+  .block { margin-bottom: var(--s3); }
   .block h2 {
     font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
     text-transform: uppercase; color: var(--muted); font-weight: 400;
     margin: 0 0 var(--s2);
   }
-  .card {
+    .card {
     background: var(--surface); border: 1px solid var(--line);
-    border-radius: var(--r); box-shadow: var(--shadow); padding: var(--s3) var(--s4);
+    border-radius: var(--r); box-shadow: var(--shadow); padding: var(--s2) var(--s4);
   }
-  .kv { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); padding: 7px 0; font-size: 14px; }
+  .kv { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); padding: 6px 0; font-size: 14px; }
   .kv + .kv { border-top: 1px solid var(--line-soft); }
   .kv span:last-child { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
   .kv.late span:last-child { color: var(--warn); }
@@ -131,13 +142,14 @@ link rel="preconnect" href="https://fonts.googleapis.com">
   .grid2 .val { font-size: 14px; color: var(--ink); }
 
   /* the water figure — small, inside the tank view */
-  .waterfig {
-    position: relative; overflow: hidden; height: 96px;
+    .waterfig {
+    position: relative; overflow: hidden; height: 78px;
     background: var(--surface); border: 1px solid var(--line);
     border-radius: var(--r); box-shadow: var(--shadow);
-    padding: var(--s3) var(--s4); display: flex; align-items: center; gap: var(--s3);
+    padding: 0 var(--s4); margin-bottom: var(--s4);
+    display: flex; align-items: center; gap: var(--s3);
   }
-  .waterfig .num { font-family: var(--serif); font-size: 42px; line-height: 1; font-weight: 500; position: relative; }
+  .waterfig .num { font-family: var(--serif); font-size: 36px; line-height: 1; font-weight: 500; position: relative; }
   .waterfig .cap { font-family: var(--mono); font-size: 12px; color: var(--muted); position: relative; }
   .water { position: absolute; left: 0; right: 0; bottom: 0; background: #DCEAE2; transition: height .6s cubic-bezier(.4,0,.2,1); }
   .water.late { background: #F5E7CE; }
@@ -160,10 +172,14 @@ link rel="preconnect" href="https://fonts.googleapis.com">
 
   .daylabel { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: var(--s4) 0 var(--s2); }
   .daylabel:first-child { margin-top: 0; }
-  .entry { padding: 10px 0; font-size: 14px; }
+  .entry {
+    display: block; width: 100%; text-align: left; background: none; border: none;
+    padding: 9px 0; font-size: 14px;
+  }
   .entry + .entry { border-top: 1px solid var(--line-soft); }
+  .entryhead { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); }
   .entry .note { color: var(--muted); font-size: 13px; }
-  .entry .when { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .entry .when { font-family: var(--mono); font-size: 11px; color: var(--muted); flex: 0 0 auto; }
 
   .sheetlink {
     background: none; border: none; padding: 0; color: var(--muted);
@@ -206,7 +222,7 @@ link rel="preconnect" href="https://fonts.googleapis.com">
   .modal h2 { font-family: var(--serif); font-weight: 500; font-size: 28px; margin: 0 0 2px; }
   .modal .sub { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0 0 var(--s4); }
 
-  .field { margin-bottom: var(--s4); }
+  .field { margin-bottom: var(--s3); }
   .field > label, .field > .lab {
     display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
     text-transform: uppercase; color: var(--muted); margin-bottom: var(--s2);
@@ -245,6 +261,25 @@ link rel="preconnect" href="https://fonts.googleapis.com">
 
   .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s3) var(--s4); margin-bottom: var(--s4); }
   .panel > .lab { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: var(--s2); }
+  .timepair { margin-bottom: var(--s3); }
+  .timepair > .lab {
+    display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: var(--s1);
+  }
+  .timepair .cols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
+  .timepair label {
+    display: block; font-family: var(--mono); font-size: 11px;
+    color: var(--muted); margin-bottom: 2px;
+  }
+  .danger {
+    width: 100%; background: none; border: 1px solid #E4CFCB;
+    color: #A8544A; border-radius: var(--r-sm); padding: 13px; font-size: 14px;
+  }
+  .toggle { display: flex; align-items: center; gap: var(--s3); padding: var(--s3) 0; border-top: 1px solid var(--line); font-size: 14px; cursor: pointer; }
+  .toggle:last-of-type { border-bottom: 1px solid var(--line); }
+  .toggle input { width: 18px; height: 18px; accent-color: var(--good); margin: 0; }
+  .toggle .hint { display: block; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .slider-nested { padding: 0 0 var(--s2) var(--s5); }
   .winrow { display: flex; justify-content: space-between; gap: var(--s3); padding: 5px 0; font-size: 14px; }
   .winrow span:last-child { font-family: var(--mono); font-size: 12px; color: var(--muted); }
   .locked { display: flex; align-items: center; justify-content: space-between; margin-top: var(--s2); }
@@ -259,13 +294,13 @@ link rel="preconnect" href="https://fonts.googleapis.com">
   .swatch[aria-pressed="true"] span { color: var(--ink); }
   .swatch-row { margin-bottom: var(--s5); }
 
-  .picker { display: flex; gap: var(--s3); }
+  .picker { display: flex; gap: var(--s2); }
   .picker button { flex: 1; background: none; border: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: var(--s2); }
-  .picker .blob { width: 100%; aspect-ratio: 1; max-width: 84px; border-radius: 50%; border: 3px solid transparent; transition: transform .15s; }
+  .picker .blob { width: 100%; aspect-ratio: 1; max-width: 56px; border-radius: 50%; border: 3px solid transparent; transition: transform .15s; }
   .picker button:hover .blob { transform: scale(1.04); }
   .picker button[aria-pressed="true"] .blob { border-color: var(--ink); }
-  .picker b { font-weight: 500; font-size: 14px; }
-  .picker i { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .picker b { font-weight: 500; font-size: 12px; text-align: center; line-height: 1.2; }
+  .picker i { font-style: normal; font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: center; }
 
   .caution { background: var(--warn-tint); border-radius: var(--r-sm); padding: 12px 14px; font-size: 13px; color: #7C5A22; margin-bottom: var(--s4); }
   .caution strong { color: #66491A; font-weight: 500; }
@@ -346,10 +381,14 @@ link rel="preconnect" href="https://fonts.googleapis.com">
     { id: "shrimp_out", label: "Shrimp climbing out", flag: true }
   ];
 
+  // Ordered by rising CO2. Bromothymol blue shifts hue, not lightness, so
+  // these are hue steps — a pale green and a deep green read the same.
   var CHECKER = [
-    { id: "green", label: "Green", hint: "in range", color: "#5FBA8C" },
-    { id: "blue", label: "Blue", hint: "CO₂ low", color: "#79B3D8" },
-    { id: "yellow", label: "Yellow", hint: "CO₂ high", color: "#EFB44F" }
+    { id: "blue", label: "Blue", hint: "too little", color: "#4C8FC9" },
+    { id: "blue_green", label: "Blue-green", hint: "coming up", color: "#4FA6A8" },
+    { id: "green", label: "Green", hint: "in range", color: "#57B27F" },
+    { id: "yellow_green", label: "Yellow-green", hint: "edge of high", color: "#A8C254" },
+    { id: "yellow", label: "Yellow", hint: "too much", color: "#EFC24F" }
   ];
 
   var MAINTENANCE = [
@@ -413,11 +452,11 @@ link rel="preconnect" href="https://fonts.googleapis.com">
     return base;
   }
 
-  function postRows(rows) {
+  function postRows(rows, action, id) {
     return fetch("/api/log", {
       method: "POST",
       headers: authHeaders({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ rows: rows })
+      body: JSON.stringify({ rows: rows, action: action || "append", id: id })
     }).then(function (r) {
       if (r.status === 401) throw new Error("auth");
       return r.json();
@@ -473,7 +512,9 @@ link rel="preconnect" href="https://fonts.googleapis.com">
       } else if (m === "co2_elapsed") e.data.co2 = numish(v);
       else if (m === "light_elapsed") e.data.light = numish(v);
     } else if (e.kind === "observation") {
-      e.data.behavior = (m === "behavior" && v) ? String(v).split("|") : (e.data.behavior || []);
+      if (m === "behavior" && v) e.data.behavior = String(v).split("|");
+      else if (m.indexOf("affected_") === 0) { e.data.species = m.slice(9); e.data.count = numish(v); }
+      if (!e.data.behavior) e.data.behavior = [];
     } else if (e.kind === "maintenance") {
       e.data.task = v;
     } else if (e.kind === "livestock" || e.kind === "plant") {
@@ -492,9 +533,14 @@ link rel="preconnect" href="https://fonts.googleapis.com">
     var byEvent = {}, order = [];
     rows.forEach(function (r) {
       if (!r.ts || !r.tank) return;
-      var key = r.ts + "|" + r.tank + "|" + r.type;
+      // Entry ID is the grouping key. Rows written before that column existed
+      // fall back to a composite — and for kinds where one row is one event,
+      // the metric has to be part of it or separate events merge.
+      var multi = ["water_change", "test", "checker", "observation"].indexOf(r.type) !== -1;
+      var key = r.id ? r.id
+        : r.ts + "|" + r.tank + "|" + r.type + (multi ? "" : "|" + r.metric);
       if (!byEvent[key]) {
-        byEvent[key] = { id: "r" + order.length, ts: r.ts, tank: r.tank, kind: r.type, data: {}, note: r.note || "" };
+        byEvent[key] = { id: r.id || key, ts: r.ts, tank: r.tank, kind: r.type, data: {}, note: r.note || "" };
         order.push(key);
       }
       if (r.note && !byEvent[key].note) byEvent[key].note = r.note;
@@ -603,6 +649,11 @@ link rel="preconnect" href="https://fonts.googleapis.com">
     return d.toISOString().slice(0, 16);
   }
   function fromLocal(s) { return s ? new Date(s).toISOString() : new Date().toISOString(); }
+  function toLocal(iso) {
+    var d = new Date(iso);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+  }
 
   var toastTimer;
   function toast(msg, onUndo) {
@@ -617,6 +668,24 @@ link rel="preconnect" href="https://fonts.googleapis.com">
     t.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { t.hidden = true; }, onUndo ? 5000 : 2600);
+  }
+
+  function replaceEntry(entry, msg) {
+    state.entries = state.entries.filter(function (e) { return e.id !== entry.id; }).concat([entry]);
+    closeModal();
+    render();
+    postRows(toRows(entry), "replace", entry.id)
+      .then(function () { toast(msg); })
+      .catch(function () { toast("Saved on device — will sync."); });
+  }
+
+  function removeEntry(entry) {
+    state.entries = state.entries.filter(function (e) { return e.id !== entry.id; });
+    closeModal();
+    render();
+    postRows([], "delete", entry.id)
+      .then(function () { toast("Deleted."); })
+      .catch(function () { toast("Couldn't delete — reload and try again."); });
   }
 
   function commit(entries, msg) {
@@ -751,7 +820,7 @@ link rel="preconnect" href="https://fonts.googleapis.com">
   function toRows(e) {
     var rows = [];
     function push(metric, value, unit) {
-      rows.push({ ts: e.ts, tank: e.tank, type: e.kind, metric: metric, value: value, unit: unit || "", note: e.note || "" });
+      rows.push({ ts: e.ts, tank: e.tank, type: e.kind, metric: metric, value: value, unit: unit || "", note: e.note || "", id: e.id });
     }
     if (e.kind === "water_change") {
       push("percent", e.data.percent, "%");
@@ -768,7 +837,8 @@ link rel="preconnect" href="https://fonts.googleapis.com">
       if (e.data.light != null) push("light_elapsed", e.data.light, "hours");
     } else if (e.kind === "observation") {
       if ((e.data.behavior || []).length) push("behavior", e.data.behavior.join("|"), "");
-      else push("note", "", "");
+      if (e.data.species) push("affected_" + e.data.species, e.data.count || 1, "count");
+      if (!(e.data.behavior || []).length && !e.data.species) push("note", "", "");
     } else if (e.kind === "maintenance") push("task", e.data.task, "");
     else if (e.kind === "livestock") push(e.data.event + "_" + e.data.species, e.data.count, "count");
     else if (e.kind === "plant") push(e.data.event + "_" + e.data.species, 1, "count");
@@ -800,6 +870,10 @@ link rel="preconnect" href="https://fonts.googleapis.com">
         for (var i = 0; i < BEHAVIOR.length; i++) if (BEHAVIOR[i].id === id) return BEHAVIOR[i].label;
         return id;
       }).join(", ");
+      if (e.data.species) {
+        var who = e.data.count + " " + pretty(e.data.species);
+        return b ? who + " — " + b : who;
+      }
       return b || "Note";
     }
     if (e.kind === "maintenance") {
@@ -927,8 +1001,9 @@ link rel="preconnect" href="https://fonts.googleapis.com">
 
   function tankRow(tank) {
     var s = tankSummary(tank);
-    var b = el("button", "rowcard" + (s.attention ? " attention" : ""));
-    b.appendChild(iconTile("tank"));
+    var b = el("div", "rowcard" + (s.attention ? " attention" : ""));
+    var main = el("button", "rowmain");
+    main.appendChild(iconTile("tank"));
 
     var body = el("div", "rowbody");
     body.appendChild(el("div", "name", tank.name));
@@ -942,12 +1017,39 @@ link rel="preconnect" href="https://fonts.googleapis.com">
       if (ck) bits.push("checker " + ck.data.checker);
     }
     body.appendChild(el("div", "meta", bits.join(" \u00b7 ")));
-    b.appendChild(body);
+    main.appendChild(body);
 
     if (tank.status !== "paused" && s.dues.now.length) {
       var pills = el("div", "pills");
       pills.appendChild(el("div", "statuspill late", s.dues.now.length + " due"));
-      b.appendChild(pills);
+      main.appendChild(pills);
+    }
+
+    main.onclick = function () {
+      state.active = tank.id;
+      state.view = "tank";
+      persistUI();
+      render();
+    };
+    b.appendChild(main);
+
+    // The two things most likely to be logged, one tap from the list.
+    if (tank.status !== "paused") {
+      var acts = el("div", "rowacts");
+      [["waves", "Log water change", waterChangeModal],
+       ["checker", "Log drop checker", checkerModal]].forEach(function (a) {
+        var btn = el("button", "act");
+        btn.setAttribute("aria-label", a[1] + ", " + tank.name);
+        btn.appendChild(svgNode(ICONS[a[0]]));
+        btn.onclick = function (ev) {
+          ev.stopPropagation();
+          state.active = tank.id;
+          persistUI();
+          a[2]();
+        };
+        acts.appendChild(btn);
+      });
+      b.appendChild(acts);
     }
 
     if (tank.status !== "paused" && s.days !== null) {
@@ -958,12 +1060,6 @@ link rel="preconnect" href="https://fonts.googleapis.com">
       b.appendChild(m);
     }
 
-    b.onclick = function () {
-      state.active = tank.id;
-      state.view = "tank";
-      persistUI();
-      render();
-    };
     return b;
   }
 
@@ -1143,10 +1239,13 @@ link rel="preconnect" href="https://fonts.googleapis.com">
         card = el("div", "card");
         app.appendChild(card);
       }
-      var row = el("div", "entry");
-      row.appendChild(el("div", null, describe(e)));
+      var row = el("button", "entry");
+      var head = el("div", "entryhead");
+      head.appendChild(el("span", null, describe(e)));
+      head.appendChild(el("span", "when", dt.toTimeString().slice(0, 5)));
+      row.appendChild(head);
       if (e.note) row.appendChild(el("div", "note", e.note));
-      row.appendChild(el("div", "when", dt.toTimeString().slice(0, 5)));
+      row.onclick = function () { entryModal(e); };
       card.appendChild(row);
     });
 
@@ -1173,15 +1272,61 @@ link rel="preconnect" href="https://fonts.googleapis.com">
     card.appendChild(r);
   }
 
+  function tankModal(tank) {
+    draft = { name: tank.name, paused: tank.status === "paused" };
+    openModal("Tank", "Name and status", function (form) {
+      var f = el("div", "field");
+      var l = el("label", null, "Name");
+      l.setAttribute("for", "tname");
+      f.appendChild(l);
+      var i = document.createElement("input");
+      i.type = "text"; i.id = "tname"; i.value = draft.name;
+      i.oninput = function () { draft.name = i.value; };
+      f.appendChild(i);
+      form.appendChild(f);
+
+      var t = el("label", "toggle");
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = draft.paused;
+      cb.onchange = function () { draft.paused = cb.checked; };
+      t.appendChild(cb);
+      var d = el("div");
+      d.appendChild(el("div", null, "Paused"));
+      d.appendChild(el("span", "hint", "Hides dues and the water figure."));
+      t.appendChild(d);
+      form.appendChild(t);
+    }, function () {
+      var name = (draft.name || "").trim();
+      if (!name) { toast("Give it a name."); return; }
+      var ts = new Date().toISOString();
+      var out = [];
+      if (name !== tank.name) {
+        tank.name = name;
+        out.push({ id: uid(), ts: ts, tank: tank.id, kind: "setting",
+          data: { setting: "tank_name", value: name, unit: "" }, note: "" });
+      }
+      var status = draft.paused ? "paused" : "running";
+      if (status !== tank.status) {
+        tank.status = status;
+        out.push({ id: uid(), ts: ts, tank: tank.id, kind: "setting",
+          data: { setting: "tank_status", value: status, unit: "" }, note: "" });
+      }
+      if (out.length) commit(out, "Tank updated.");
+      else { closeModal(); toast("Nothing changed."); }
+    }, "Save tank");
+  }
+
   function renderReference(app, tank) {
-    app.appendChild(pageHead("Reference", tank.name));
+    var edit = el("button", "datechip", "Edit tank");
+    edit.onclick = function () { tankModal(tank); };
+    app.appendChild(pageHead("Reference", tank.name, edit));
 
     var sch = schedule(tank.id);
     var b1 = refBlock("Schedule");
     var g = el("div", "grid2");
-    [["CO\u2082", sch.co2On && sch.co2Off ? sch.co2On + "\u2013" + sch.co2Off : "not set"],
-     ["Light", sch.lightOn && sch.lightOff ? sch.lightOn + "\u2013" + sch.lightOff : "not set"],
-     ["Photoperiod", sch.lightOn && sch.lightOff ? span(sch.lightOn, sch.lightOff) + " h" : "\u2014"],
+    [["CO\u2082", sch.co2On && sch.co2Off ? sch.co2On + "\u2013" + sch.co2Off + " \u00b7 " + span(sch.co2On, sch.co2Off) + "h" : "not set"],
+     ["Light", sch.lightOn && sch.lightOff ? sch.lightOn + "\u2013" + sch.lightOff + " \u00b7 " + span(sch.lightOn, sch.lightOff) + "h" : "not set"],
      ["Bubble rate", settingValue(tank.id, "bubble_rate", null) ? settingValue(tank.id, "bubble_rate", null) + " bps" : "not set"],
      ["Light intensity", settingValue(tank.id, "light_intensity", null) ? settingValue(tank.id, "light_intensity", null) + " %" : "not set"],
      ["Net volume", netVolume(tank.id) ? netVolume(tank.id) + " L" : "not measured"]
@@ -1354,20 +1499,26 @@ link rel="preconnect" href="https://fonts.googleapis.com">
     p.appendChild(el("div", "lab", "CO₂ and light"));
 
     if (draft.unlocked) {
-      [["co2On", "CO₂ on"], ["co2Off", "CO₂ off"], ["lightOn", "Light on"], ["lightOff", "Light off"]]
-        .forEach(function (x) {
-          var f = el("div", "field");
-          var l = el("label", null, x[1]);
-          l.setAttribute("for", x[0]);
-          f.appendChild(l);
+      [["CO₂", "co2On", "co2Off"], ["Light", "lightOn", "lightOff"]].forEach(function (pair) {
+        var g = el("div", "timepair");
+        g.appendChild(el("span", "lab", pair[0]));
+        var cols = el("div", "cols");
+        [["on", pair[1]], ["off", pair[2]]].forEach(function (x) {
+          var cell = el("div");
+          var l = el("label", null, x[0]);
+          l.setAttribute("for", x[1]);
+          cell.appendChild(l);
           var i = document.createElement("input");
           i.type = "time";
-          i.id = x[0];
-          i.value = draft[x[0]];
-          i.onchange = function () { draft[x[0]] = i.value; };
-          f.appendChild(i);
-          p.appendChild(f);
+          i.id = x[1];
+          i.value = draft[x[1]];
+          i.onchange = function () { draft[x[1]] = i.value; };
+          cell.appendChild(i);
+          cols.appendChild(cell);
         });
+        g.appendChild(cols);
+        p.appendChild(g);
+      });
       p.appendChild(sliderField("Bubble rate", 0.5, 6, 0.5, draft.bubble,
         function (v) { return v + " bps"; },
         function (v) { draft.bubble = v; }));
@@ -1441,7 +1592,7 @@ link rel="preconnect" href="https://fonts.googleapis.com">
       pumps: lastFert ? lastFert.data.amount : 3,
       iodine: iodDays >= cadenceOf(tank.id, "cadence_iodine", 28),
       iodProduct: iodProduct,
-      iodAmount: lastIod ? lastIod.data.amount : (suggested || 0.5),
+      iodAmount: lastIod ? lastIod.data.amount : 0.5,
       glass: true,
       trims: [],
       note: ""
@@ -1477,12 +1628,18 @@ link rel="preconnect" href="https://fonts.googleapis.com">
         fp.appendChild(sliderField("Pumps", 1, 4, 0.5, draft.pumps,
           function (v) { return v + (v === 1 ? " pump" : " pumps"); },
           function (v) { draft.pumps = v; }));
-        var swap = el("button", "sheetlink", "Switched fertiliser?");
-        swap.onclick = function () {
-          var name = window.prompt("Fertiliser name", pretty(draft.fertProduct));
-          if (name) { draft.fertProduct = slug(name); refresh(); }
-        };
-        fp.appendChild(swap);
+        if (draft.editingProduct) {
+          var pi = document.createElement("input");
+          pi.type = "text";
+          pi.value = pretty(draft.fertProduct);
+          pi.setAttribute("aria-label", "Fertiliser name");
+          pi.oninput = function () { draft.fertProduct = slug(pi.value); };
+          fp.appendChild(pi);
+        } else {
+          var swap = el("button", "sheetlink", "Switched fertiliser?");
+          swap.onclick = function () { draft.editingProduct = true; refresh(); };
+          fp.appendChild(swap);
+        }
         form.appendChild(fp);
       }
 
@@ -1510,11 +1667,19 @@ link rel="preconnect" href="https://fonts.googleapis.com">
       }
 
       // trim
-      var plants = rosterOf(tank.id, "plant");
+      var plants = rosterOf(tank.id, "plant").map(function (p) {
+        var t = lastEntry(tank.id, function (e) {
+          return e.kind === "plant" && e.data.event === "trim" && e.data.species === p.species;
+        });
+        p.since = t ? daysSince(t.ts) : 9999;
+        return p;
+      }).sort(function (a, b) { return b.since - a.since; });
       var tf = labField("Trimmed");
       if (plants.length) {
         tf.appendChild(chipRow(
-          plants.map(function (p) { return { id: p.species, label: pretty(p.species) }; }),
+          plants.map(function (p) {
+            return { id: p.species, label: pretty(p.species) + (p.since < 9999 ? " · " + p.since + "d" : "") };
+          }),
           draft.trims,
           function (id) {
             var i = draft.trims.indexOf(id);
@@ -1662,8 +1827,12 @@ link rel="preconnect" href="https://fonts.googleapis.com">
     });
   }
 
-  function observationModal() {
-    draft = { when: nowLocal(), behavior: [], note: "" };
+  function observationModal(existing) {
+    draft = existing
+      ? { when: toLocal(existing.ts), behavior: (existing.data.behavior || []).slice(),
+          species: existing.data.species || "", count: existing.data.count || 1, note: existing.note || "" }
+      : { when: nowLocal(), behavior: [], species: "", count: 1, note: "" };
+
     openModal("Observation", activeTank().name, function (form, refresh) {
       var f = labField("Behaviour");
       f.appendChild(chipRow(BEHAVIOR, draft.behavior, function (id) {
@@ -1672,12 +1841,38 @@ link rel="preconnect" href="https://fonts.googleapis.com">
         refresh();
       }));
       form.appendChild(f);
+
+      var roster = rosterOf(activeTank().id, "livestock");
+      var f2 = labField("Who");
+      if (roster.length) {
+        f2.appendChild(chipRow(
+          roster.map(function (r) { return { id: r.species, label: pretty(r.species) }; }),
+          draft.species ? [draft.species] : [],
+          function (id) { draft.species = draft.species === id ? "" : id; refresh(); }
+        ));
+      } else {
+        f2.appendChild(el("p", "mathline", "Log livestock to pick a species here."));
+      }
+      form.appendChild(f2);
+
+      if (draft.species) {
+        var max = 1;
+        roster.forEach(function (r) { if (r.species === draft.species) max = Math.max(r.count, 1); });
+        form.appendChild(sliderField("How many affected", 1, max, 1, Math.min(draft.count, max),
+          function (v) { return v + " of " + max; },
+          function (v) { draft.count = v; }));
+      }
+
       noteField(form, "What you saw");
       whenField(form);
     }, function () {
-      if (!draft.behavior.length && !draft.note.trim()) { toast("Nothing to log yet."); return; }
-      commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "observation",
-        data: { behavior: draft.behavior }, note: draft.note || "" }], "Observation logged.");
+      if (!draft.behavior.length && !draft.note.trim() && !draft.species) { toast("Nothing to log yet."); return; }
+      var data = { behavior: draft.behavior };
+      if (draft.species) { data.species = draft.species; data.count = draft.count; }
+      var entry = { id: existing ? existing.id : uid(), ts: fromLocal(draft.when),
+        tank: state.active, kind: "observation", data: data, note: draft.note || "" };
+      if (existing) replaceEntry(entry, "Observation updated.");
+      else commit([entry], "Observation logged.");
     });
   }
 
@@ -1835,6 +2030,29 @@ link rel="preconnect" href="https://fonts.googleapis.com">
       if (out.length) commit(out, "Intervals updated.");
       else { closeModal(); toast("Nothing changed."); }
     }, "Save intervals");
+  }
+
+  function entryModal(entry) {
+    draft = { when: toLocal(entry.ts), note: entry.note || "" };
+    openModal(describe(entry), new Date(entry.ts).toLocaleString(), function (form) {
+      whenField(form);
+      noteField(form);
+      if (entry.kind === "observation") {
+        var edit = el("button", "sheetlink", "Edit behaviour and species");
+        edit.onclick = function () { observationModal(entry); };
+        form.appendChild(edit);
+      }
+      var del = el("button", "danger", "Delete this entry");
+      del.style.marginTop = "20px";
+      del.onclick = function () { removeEntry(entry); };
+      form.appendChild(del);
+    }, function () {
+      var next = {
+        id: entry.id, ts: fromLocal(draft.when), tank: entry.tank,
+        kind: entry.kind, data: entry.data, note: draft.note || ""
+      };
+      replaceEntry(next, "Entry updated.");
+    }, "Save changes");
   }
 
   function rowsModal() {
