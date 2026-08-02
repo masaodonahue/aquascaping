@@ -15,20 +15,20 @@
  */
 
 async function verify(req) {
-  const header = req.headers.authorization || '';
-  const idToken = header.startsWith('Bearer ') ? header.slice(7) : null;
-  if (!idToken) return { ok: false, error: 'not signed in' };
-
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const allowed = (process.env.ALLOWED_EMAILS || '')
     .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-  if (!clientId || !allowed.length) {
-    return { ok: false, error: 'GOOGLE_CLIENT_ID or ALLOWED_EMAILS not set' };
-  }
+  // Sign-in is opt-in. With no client ID configured the endpoint is open --
+  // fine while you're getting it running, not fine long term.
+  if (!clientId || !allowed.length) return { ok: true, email: null };
 
   // Google's tokeninfo endpoint checks the signature and expiry for us. Slower
   // than verifying locally, but there is no library to keep current and this
   // runs a handful of times a week.
+  const header = req.headers.authorization || '';
+  const idToken = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!idToken) return { ok: false, error: 'not signed in' };
+
   const r = await fetch(
     'https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(idToken)
   );

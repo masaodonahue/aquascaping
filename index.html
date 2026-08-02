@@ -1,6 +1,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aquascape Log</title>
+
+<script>
+  /* ============================================================
+     SETTINGS — the only thing in this file you need to edit.
+
+     Leave as-is to run without sign-in.
+     To turn sign-in on, paste your Google OAuth client ID here.
+     ============================================================ */
+  window.CLIENT_ID = "536414923855-5p0o3il6uc69pkaa820kk0uhkeugap8c.apps.googleusercontent.com";
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -334,6 +344,10 @@
     color: var(--aqua); font-weight: 700; text-decoration: underline; text-underline-offset: 2px;
   }
   .loading { color: var(--muted); font-size: 13px; padding: 40px 0; }
+  .openbanner {
+    background: #FDF4E4; color: #8A6B2E; border-radius: var(--r-sm);
+    padding: 10px 14px; font-size: 12px; margin-bottom: 18px;
+  }
 
   .gate {
     background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
@@ -356,9 +370,9 @@
 (function () {
   "use strict";
 
-  // Public by design — a client ID identifies the app, it doesn't authorise
-  // anything. The check that matters happens in api/log.js.
-  var CLIENT_ID = "536414923855-5p0o3il6uc69pkaa820kk0uhkeugap8c.apps.googleusercontent.com";
+  // Set at the top of this file. Empty means sign-in is off.
+  var CLIENT_ID = (window.CLIENT_ID || "").trim();
+  var AUTH_ON = CLIENT_ID.indexOf("apps.googleusercontent.com") !== -1;
   var TOKEN_KEY = "aqualog:idt";
 
   var idToken = null;
@@ -452,10 +466,15 @@
     try { localStorage.setItem(QUEUE_KEY, JSON.stringify(rows)); } catch (err) {}
   }
 
+  function authHeaders(base) {
+    if (idToken) base["Authorization"] = "Bearer " + idToken;
+    return base;
+  }
+
   function postRows(rows) {
     return fetch("/api/log", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+      headers: authHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ rows: rows })
     }).then(function (r) {
       if (r.status === 401) throw new Error("auth");
@@ -471,7 +490,7 @@
 
   function load() {
     var ui = readUI();
-    return fetch("/api/log", { headers: { "Authorization": "Bearer " + idToken } })
+    return fetch("/api/log", { headers: authHeaders({}) })
       .then(function (r) {
         if (r.status === 401) throw new Error("auth");
         return r.json();
@@ -906,6 +925,11 @@
     app.innerHTML = "";
     var tank = activeTank();
 
+    if (!AUTH_ON) {
+      var warn = el("div", "openbanner");
+      warn.appendChild(document.createTextNode("Sign-in is off — anyone with this URL can write."));
+      app.appendChild(warn);
+    }
     app.appendChild(el("p", "eyebrow", "Aquascape log"));
 
     var tanks = el("div", "tanks");
@@ -1889,10 +1913,10 @@
   }
 
   function start() {
-    if (!idToken) {
+    if (AUTH_ON && !idToken) {
       try { idToken = sessionStorage.getItem(TOKEN_KEY); } catch (err) { idToken = null; }
     }
-    if (!idToken) return showGate();
+    if (AUTH_ON && !idToken) return showGate();
 
     load().then(function (s) {
       state = s;
@@ -1900,7 +1924,7 @@
       flushQueue();
     }).catch(function (err) {
       // ID tokens last an hour, so expiry is routine rather than a failure.
-      if (String(err.message) === "auth" || /token|signed in|allowed/.test(String(err.message))) {
+      if (AUTH_ON && (String(err.message) === "auth" || /token|signed in|allowed/.test(String(err.message)))) {
         idToken = null;
         try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
         return showGate(String(err.message) === "auth" ? "" : err.message);
