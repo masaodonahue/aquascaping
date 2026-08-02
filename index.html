@@ -1,0 +1,1915 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aquascape Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ground: #F3F8F7;
+    --surface: #FFFFFF;
+    --surface-2: #E9F2F0;
+    --line: #E1ECE9;
+    --text: #17312C;
+    --muted: #7B948F;
+    --good: #4FA97F;
+    --low: #6FA8CE;
+    --warn: #E8A33C;
+    --aqua: #C7E7E0;
+    --aqua-late: #FAE3BE;
+
+    --display: "Zen Maru Gothic", ui-rounded, "Hiragino Maru Gothic ProN", sans-serif;
+    --ui: "Zen Kaku Gothic New", ui-sans-serif, system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+    --pad: 20px;
+    --r: 14px;
+    --r-sm: 10px;
+    --shadow: 0 1px 2px rgba(23,49,44,.04), 0 6px 18px rgba(23,49,44,.05);
+    --shadow-lift: 0 3px 6px rgba(23,49,44,.05), 0 14px 30px rgba(23,49,44,.09);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; background: var(--ground); color: var(--text);
+    font-family: var(--ui); font-size: 15px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--good); outline-offset: 3px; border-radius: 3px; }
+
+  .app { max-width: 440px; margin: 0 auto; padding: 30px var(--pad) 130px; }
+
+  .eyebrow {
+    font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 14px;
+  }
+  .tanks { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+  .tanks button {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: 7px 16px; font-size: 13px; color: var(--muted);
+    transition: color .15s, border-color .15s, background-color .15s;
+  }
+  .tanks button:hover { color: var(--text); }
+  .tanks button[aria-pressed="true"] { color: #fff; background: var(--text); border-color: var(--text); }
+  .tanks .add { padding: 7px 13px; }
+  .tanks .paused::after {
+    content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--low); margin-left: 8px; vertical-align: middle;
+  }
+
+  /* water card */
+  .meniscus {
+    position: relative; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow);
+    padding: 26px 22px 20px; margin-bottom: 12px; min-height: 172px;
+  }
+  .water {
+    position: absolute; left: 0; right: 0; bottom: 0; background: var(--aqua);
+    transition: height .6s cubic-bezier(.4,0,.2,1); pointer-events: none;
+  }
+  .water.late { background: var(--aqua-late); }
+  .wave { position: absolute; top: -9px; left: 0; width: 200%; height: 10px; display: block; animation: drift 11s linear infinite; }
+  @keyframes drift { to { transform: translateX(-50%); } }
+  .meniscus > *:not(.water) { position: relative; z-index: 1; }
+  .meniscus .count { font-family: var(--display); font-size: 78px; line-height: .92; font-weight: 500; display: block; margin-bottom: 4px; }
+  .meniscus .caption { font-size: 13px; color: var(--muted); margin-bottom: 26px; }
+  .fill-meta { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  .paused-card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    box-shadow: var(--shadow); padding: 28px 22px; margin-bottom: 12px;
+  }
+  .paused-card h2 { font-family: var(--display); font-weight: 500; font-size: 22px; margin: 0 0 6px; }
+  .paused-card p { color: var(--muted); font-size: 13px; margin: 0; }
+
+  /* tiles */
+  .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 22px; }
+  .tile {
+    border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow);
+    background: var(--surface); padding: 20px 14px 18px;
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px;
+    transition: transform .16s, box-shadow .16s;
+  }
+  .tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+  .tile svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .tile strong { display: block; font-weight: 500; font-size: 15px; line-height: 1.2; }
+  .tile span { font-size: 11.5px; line-height: 1.3; display: block; margin-top: 3px; opacity: .72; }
+  .tile.hero { border: none; padding: 26px 14px 22px; color: #fff; }
+  .tile.hero svg { width: 42px; height: 42px; stroke-width: 1.4; }
+  .tile.hero strong { font-size: 17px; }
+  .tile .puck { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; }
+
+  /* due */
+  .due {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    box-shadow: var(--shadow); padding: 17px 22px 19px; margin-bottom: 10px;
+  }
+  .due h3 {
+    font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 12px; font-weight: 500;
+  }
+  .due ul { list-style: none; margin: 0; padding: 0; }
+  .due li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 5px 0; font-size: 14px; }
+  .due li span:last-child { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .due li.late span:last-child { color: var(--warn); }
+  .due .clear { color: var(--muted); font-size: 14px; margin: 0; }
+
+  /* history */
+  .search { display: flex; gap: 8px; margin-bottom: 10px; }
+  .search input {
+    flex: 1; background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: 11px 16px; font-family: var(--ui); font-size: 14px; color: var(--text);
+  }
+  .pills { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 18px; }
+  .pills button {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: 7px 14px; font-size: 12.5px; color: var(--muted); white-space: nowrap;
+  }
+  .pills button[aria-pressed="true"] { color: #fff; background: var(--text); border-color: var(--text); }
+  .history h3 { font-family: var(--mono); font-size: 11px; color: var(--muted); font-weight: 400; margin: 22px 0 6px; }
+  .history h3:first-child { margin-top: 0; }
+  .history ul {
+    list-style: none; margin: 0; padding: 4px 18px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow);
+  }
+  .history li { padding: 11px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .history li:first-child { border-top: none; }
+  .history .note { color: var(--muted); font-size: 12px; }
+  .history .time { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .history .clear { color: var(--muted); }
+
+  /* reference */
+  .ref {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    box-shadow: var(--shadow); padding: 17px 22px 19px; margin-bottom: 10px;
+  }
+  .ref h3 {
+    font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 12px; font-weight: 500;
+  }
+  .ref .row { display: flex; justify-content: space-between; gap: 14px; padding: 5px 0; font-size: 14px; }
+  .ref .row span:last-child { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; }
+  .ref .empty { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+  .ref .scale-label { font-size: 12px; color: var(--muted); margin-bottom: 7px; }
+  .ref .swatch { pointer-events: none; }
+
+  /* recent */
+  .recent h3 {
+    font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--muted); margin: 22px 0 10px; font-weight: 500;
+  }
+  .recent ol {
+    list-style: none; margin: 0; padding: 4px 18px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow);
+  }
+  .recent li { display: flex; gap: 14px; padding: 11px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .recent li:first-child { border-top: none; }
+  .recent time { font-family: var(--mono); font-size: 11px; color: var(--muted); flex: 0 0 46px; padding-top: 2px; }
+  .recent .body { flex: 1; }
+  .recent .note { color: var(--muted); font-size: 12px; }
+  .recent .clear { color: var(--muted); font-size: 14px; }
+
+  .sheetlink {
+    background: none; border: none; padding: 0; color: var(--muted); font-size: 12px;
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .sheetlink:hover { color: var(--text); }
+
+  /* tab bar */
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(255,255,255,.9);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line); display: flex; justify-content: center; z-index: 40;
+  }
+  .tabbar .inner { display: flex; width: 100%; max-width: 440px; }
+  .tabbar button {
+    flex: 1; background: none; border: none;
+    padding: 15px 4px calc(15px + env(safe-area-inset-bottom, 0px));
+    font-size: 12px; color: var(--muted); position: relative; transition: color .15s;
+  }
+  .tabbar button:hover { color: var(--text); }
+  .tabbar button[aria-current="page"] { color: var(--text); font-weight: 500; }
+  .tabbar button[aria-current="page"]::before {
+    content: ""; position: absolute; top: -1px; left: 26%; right: 26%;
+    height: 2px; border-radius: 0 0 2px 2px; background: var(--good);
+  }
+
+  /* modal */
+  .scrim {
+    position: fixed; inset: 0; background: rgba(23,49,44,.34);
+    -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+    display: flex; align-items: flex-end; justify-content: center; z-index: 50;
+  }
+  .scrim[hidden] { display: none; }
+  .modal {
+    background: var(--ground); border-radius: 20px 20px 0 0; width: 100%; max-width: 440px;
+    max-height: 90vh; overflow-y: auto; padding: 24px var(--pad) 30px;
+    animation: rise .24s cubic-bezier(.2,.8,.3,1);
+  }
+  @keyframes rise { from { transform: translateY(18px); opacity: .3; } }
+  @media (prefers-reduced-motion: reduce) {
+    .modal { animation: none; }
+    .tile:hover { transform: none; }
+    .wave { animation: none; }
+    .water { transition: none; }
+  }
+  .modal h2 { font-family: var(--display); font-weight: 500; font-size: 25px; margin: 0 0 3px; }
+  .modal .sub { color: var(--muted); font-size: 12px; margin: 0 0 22px; font-family: var(--mono); }
+
+  .field { margin-bottom: 20px; }
+  .field > label, .field > .lab {
+    display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 9px;
+  }
+  input[type=text], input[type=number], input[type=time], input[type=datetime-local], textarea {
+    width: 100%; background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r-sm); color: var(--text); font-family: var(--ui);
+    font-size: 15px; padding: 12px 13px;
+  }
+  textarea { min-height: 76px; resize: vertical; }
+
+  .slider-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
+  .slider-head .lab { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  .slider-val { font-family: var(--display); font-size: 30px; font-weight: 500; line-height: 1.1; }
+  input[type=range] { width: 100%; accent-color: var(--good); background: transparent; margin: 4px 0 0; }
+  .slider-scale { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: 9px 15px; font-size: 13px; color: var(--muted);
+    transition: color .14s, border-color .14s, background-color .14s;
+  }
+  .chip:hover { color: var(--text); }
+  .chip[aria-pressed="true"] { color: #fff; background: var(--text); border-color: var(--text); }
+  .chip.flag[aria-pressed="true"] { background: var(--warn); border-color: var(--warn); color: #fff; }
+
+  /* three icon toggles in the water change flow */
+  .switches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 6px; }
+  .switch {
+    background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r);
+    padding: 15px 8px 13px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: var(--muted); transition: border-color .15s, color .15s, background-color .15s;
+  }
+  .switch svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .switch b { font-weight: 500; font-size: 12.5px; }
+  .switch[aria-pressed="true"] { color: var(--good); border-color: var(--good); background: #EDF7F2; }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 16px 18px; margin-bottom: 20px;
+  }
+  .panel > .lab {
+    display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+  }
+  .winrow { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 14px; }
+  .winrow span:last-child { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .locked { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .locked em { font-style: normal; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+
+  .mathline { font-family: var(--mono); font-size: 11px; color: var(--muted); margin: 6px 0 0; }
+  .mathline.off { color: var(--warn); }
+
+  .swatches { display: flex; gap: 5px; }
+  .swatch {
+    flex: 1; aspect-ratio: 1 / 1.4; border: 2px solid transparent; border-radius: 8px;
+    position: relative; padding: 0; min-width: 0; transition: transform .14s;
+  }
+  .swatch:hover { transform: translateY(-2px); }
+  .swatch[aria-pressed="true"] { border-color: var(--text); }
+  .swatch span {
+    position: absolute; left: 0; right: 0; bottom: -19px;
+    font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: center;
+  }
+  .swatch[aria-pressed="true"] span { color: var(--text); }
+  .swatch-row { margin-bottom: 30px; }
+
+  /* big colour picker for the checker */
+  .picker { display: flex; gap: 12px; }
+  .picker button {
+    flex: 1; background: none; border: none; padding: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 9px;
+  }
+  .picker .blob {
+    width: 100%; aspect-ratio: 1; max-width: 92px; border-radius: 50%;
+    border: 3px solid transparent; transition: transform .15s, box-shadow .15s;
+  }
+  .picker button:hover .blob { transform: scale(1.05); box-shadow: var(--shadow-lift); }
+  .picker button[aria-pressed="true"] .blob { border-color: var(--text); box-shadow: var(--shadow-lift); }
+  .picker b { font-weight: 500; font-size: 13.5px; }
+  .picker i { font-style: normal; font-size: 11px; color: var(--muted); }
+
+  .caution { background: #FDF4E4; border-radius: var(--r-sm); padding: 12px 14px; font-size: 13px; color: #8A6B2E; margin-bottom: 20px; }
+  .caution strong { color: #7A5A1C; font-weight: 700; }
+
+  .modal-actions { display: flex; gap: 8px; margin-top: 26px; }
+  .modal-actions .save {
+    flex: 1; background: var(--good); color: #fff; border: none;
+    border-radius: var(--r-sm); padding: 16px; font-weight: 700;
+  }
+  .modal-actions .cancel {
+    background: none; border: 1px solid var(--line); border-radius: var(--r-sm);
+    padding: 16px 22px; color: var(--muted);
+  }
+
+  table.rows { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 10px; }
+  table.rows th { text-align: left; color: var(--muted); font-weight: 400; padding: 5px 8px 5px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.rows td { padding: 5px 8px 5px 0; border-bottom: 1px solid var(--surface-2); color: var(--muted); white-space: nowrap; }
+  table.rows td:nth-child(3), table.rows td:nth-child(5) { color: var(--text); }
+  .scroller { overflow-x: auto; }
+
+  .toast {
+    position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: #fff; padding: 12px 22px; border-radius: 999px;
+    font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lift); z-index: 90;
+  }
+  .toast[hidden] { display: none; }
+  .toast .undo {
+    background: none; border: none; padding: 0; margin-left: 14px;
+    color: var(--aqua); font-weight: 700; text-decoration: underline; text-underline-offset: 2px;
+  }
+  .loading { color: var(--muted); font-size: 13px; padding: 40px 0; }
+
+  .gate {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    box-shadow: var(--shadow); padding: 34px 24px 30px; text-align: center; margin-top: 40px;
+  }
+  .gate h2 { font-family: var(--display); font-weight: 500; font-size: 24px; margin: 0 0 6px; }
+  .gate p { color: var(--muted); font-size: 13px; margin: 0 0 22px; }
+  .gate .btn { display: flex; justify-content: center; }
+  .gate .err { color: var(--warn); font-size: 12px; margin-top: 16px; }
+</style>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<div class="app" id="app"><p class="loading">Loading…</p></div>
+<nav class="tabbar" id="tabs" aria-label="Sections"></nav>
+<div class="scrim" id="scrim" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Public by design — a client ID identifies the app, it doesn't authorise
+  // anything. The check that matters happens in api/log.js.
+  var CLIENT_ID = "REPLACE_ME.apps.googleusercontent.com";
+  var TOKEN_KEY = "aqualog:idt";
+
+  var idToken = null;
+
+  var UI_KEY = "aqualog:ui";
+  var QUEUE_KEY = "aqualog:queue";
+  var DAY = 86400000;
+  var NS = "http://www.w3.org/2000/svg";
+
+  /* ================= reference data ================= */
+
+  var API = {
+    ammonia: { steps: [0, 0.25, 0.5, 1, 2, 4, 8],
+      colors: ["#E8DC7A","#D6DC72","#B6D06E","#8CC06B","#5FA968","#3D8A5E","#2A6B4E"] },
+    nitrite: { steps: [0, 0.25, 0.5, 1, 2, 5],
+      colors: ["#8FC6D4","#B9A8C6","#C286B4","#B85C97","#9C3874","#6E1F4E"] },
+    nitrate: { steps: [0, 5, 10, 20, 40, 80, 160],
+      colors: ["#F0D96B","#EFC05C","#EC9E4E","#E37A44","#D4553C","#B33A32","#8A2726"] }
+  };
+
+  var BEHAVIOR = [
+    { id: "normal", label: "Normal" },
+    { id: "full_column", label: "Using full column" },
+    { id: "approaching", label: "Approaching glass" },
+    { id: "hiding", label: "Hiding", flag: true },
+    { id: "surface", label: "Surface-hanging", flag: true },
+    { id: "gasping", label: "Gasping", flag: true },
+    { id: "pale", label: "Pale", flag: true },
+    { id: "shrimp_out", label: "Shrimp climbing out", flag: true }
+  ];
+
+  var CHECKER = [
+    { id: "green", label: "Green", hint: "in range", color: "#5FBA8C" },
+    { id: "blue", label: "Blue", hint: "CO₂ low", color: "#79B3D8" },
+    { id: "yellow", label: "Yellow", hint: "CO₂ high", color: "#EFB44F" }
+  ];
+
+  var MAINTENANCE = [
+    { id: "filter_pipes", label: "Filter & pipes" },
+    { id: "reactor", label: "Reactor" }
+  ];
+
+  var SETTINGS = [
+    { id: "bubble_rate", label: "Bubble rate", unit: "bps", min: 0.5, max: 6, step: 0.5 },
+    { id: "light_intensity", label: "Light intensity", unit: "%", min: 10, max: 100, step: 5 }
+  ];
+
+  var CADENCE = [
+    { key: "cadence_water_change", label: "Water change", def: 7 },
+    { key: "cadence_glass", label: "Glass", def: 14 },
+    { key: "cadence_iodine", label: "Iodine", def: 28 }
+  ];
+
+  var ICONS = {
+    waves: [{ d: "M3 7q2.6-2.4 5.2 0t5.2 0 5.2 0" }, { d: "M3 12q2.6-2.4 5.2 0t5.2 0 5.2 0" }, { d: "M3 17q2.6-2.4 5.2 0t5.2 0 5.2 0" }],
+    vial: [{ d: "M9.5 3v11.4a2.75 2.75 0 0 0 5.5 0V3" }, { d: "M8.3 3h7.9" }, { d: "M9.5 11.2h5.5" }],
+    checker: [{ c: [12, 12, 8.5] }, { d: "M12 8.2c1.7 2.1 2.7 3.3 2.7 4.5a2.7 2.7 0 0 1-5.4 0c0-1.2 1-2.4 2.7-4.5z" }],
+    eye: [{ d: "M2.8 12S6.4 6.2 12 6.2 21.2 12 21.2 12 17.6 17.8 12 17.8 2.8 12 2.8 12z" }, { c: [12, 12, 2.6] }],
+    sparkle: [{ d: "M9.5 3.2l1.5 4.3 4.3 1.5-4.3 1.5-1.5 4.3-1.5-4.3L3.7 9l4.3-1.5z" }, { d: "M17.5 14l.85 2.35 2.35.85-2.35.85-.85 2.35-.85-2.35-2.35-.85 2.35-.85z" }],
+    fish: [{ e: [10.5, 12, 6.8, 4.4] }, { d: "M17.3 12c1.5-1.7 2.7-2.5 3.7-2.5v5c-1 0-2.2-.8-3.7-2.5z" }, { c: [7.2, 10.8, 0.9, true] }],
+    leaf: [{ d: "M5 19.5C5 10.5 11 4 20.2 4c0 9.2-6.2 15.5-15.2 15.5z" }, { d: "M9.2 15C10.8 12.2 14 10 17.4 9" }],
+    sliders: [{ d: "M3 8.5h11" }, { d: "M18.5 8.5H21" }, { d: "M3 15.5h4" }, { d: "M11.5 15.5H21" }, { c: [16.2, 8.5, 2.3] }, { c: [9.2, 15.5, 2.3] }],
+    drop: [{ d: "M12 3.4c3.3 4 5.3 6.6 5.3 8.9a5.3 5.3 0 0 1-10.6 0c0-2.3 2-4.9 5.3-8.9z" }],
+    glass: [{ d: "M5 4h14v11H5z" }, { d: "M8.5 19.5h7" }, { d: "M12 15v4.5" }, { d: "M8 7.5l3 3" }],
+    scissors: [{ c: [6, 18, 2.6] }, { c: [18, 18, 2.6] }, { d: "M7.8 16.2L19 4" }, { d: "M16.2 16.2L5 4" }]
+  };
+
+  /* ================= state ================= */
+
+  var state = null;
+  var draft = {};
+  var ui = { search: "", filter: "all" };
+
+  /* ================= backend ================= */
+
+  // The sheet is the store. Rows come back on load and are rebuilt into
+  // entries; new entries POST as rows. Which tank and which tab are UI state,
+  // not data — those stay local rather than costing a round trip.
+
+  function persistUI() {
+    try { localStorage.setItem(UI_KEY, JSON.stringify({ active: state.active, tab: state.tab })); }
+    catch (err) { /* private mode */ }
+  }
+  function readUI() {
+    try { return JSON.parse(localStorage.getItem(UI_KEY)) || {}; } catch (err) { return {}; }
+  }
+  function queued() {
+    try { return JSON.parse(localStorage.getItem(QUEUE_KEY)) || []; } catch (err) { return []; }
+  }
+  function setQueue(rows) {
+    try { localStorage.setItem(QUEUE_KEY, JSON.stringify(rows)); } catch (err) {}
+  }
+
+  function postRows(rows) {
+    return fetch("/api/log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+      body: JSON.stringify({ rows: rows })
+    }).then(function (r) {
+      if (r.status === 401) throw new Error("auth");
+      return r.json();
+    }).then(function (j) { if (!j.ok) throw new Error(j.error || "write failed"); return j; });
+  }
+
+  function flushQueue() {
+    var q = queued();
+    if (!q.length) return Promise.resolve();
+    return postRows(q).then(function () { setQueue([]); }).catch(function () {});
+  }
+
+  function load() {
+    var ui = readUI();
+    return fetch("/api/log", { headers: { "Authorization": "Bearer " + idToken } })
+      .then(function (r) {
+        if (r.status === 401) throw new Error("auth");
+        return r.json();
+      })
+      .then(function (j) {
+        if (!j.ok) throw new Error(j.error || "read failed");
+        var st = fromRows(j.rows || []);
+        var wanted = ui.active && st.tanks.some(function (t) { return t.id === ui.active; });
+        st.active = wanted ? ui.active : st.tanks[0].id;
+        st.tab = ui.tab || "home";
+        return st;
+      });
+  }
+
+  /* ---- rows back into entries ---- */
+
+  function numish(v) {
+    if (v === "" || v === null || v === undefined) return v;
+    var n = Number(v);
+    return (isNaN(n) || String(v).trim() === "") ? v : n;
+  }
+
+  function absorb(e, r) {
+    var m = String(r.metric), v = r.value;
+    if (e.kind === "water_change") {
+      if (m === "percent") e.data.percent = numish(v);
+      else if (m === "refill") e.data.refill_l = numish(v);
+      else if (m === "glass") e.data.glass = true;
+    } else if (e.kind === "dose") {
+      e.data.product = m; e.data.amount = numish(v); e.data.unit = r.unit;
+    } else if (e.kind === "test") {
+      e.data[m] = numish(v);
+    } else if (e.kind === "checker") {
+      if (m === "drop_checker") {
+        e.data.checker = v;
+        e.data.hour = Number(String(r.unit).replace("hour_", "")) || 0;
+      } else if (m === "co2_elapsed") e.data.co2 = numish(v);
+      else if (m === "light_elapsed") e.data.light = numish(v);
+    } else if (e.kind === "observation") {
+      e.data.behavior = (m === "behavior" && v) ? String(v).split("|") : (e.data.behavior || []);
+    } else if (e.kind === "maintenance") {
+      e.data.task = v;
+    } else if (e.kind === "livestock" || e.kind === "plant") {
+      var i = m.indexOf("_");
+      e.data.event = m.slice(0, i);
+      e.data.species = m.slice(i + 1);
+      e.data.count = numish(v);
+    } else if (e.kind === "setting") {
+      e.data.setting = m;
+      e.data.value = (r.unit === "time" || r.unit === "ml_per_l") ? String(v) : numish(v);
+      e.data.unit = r.unit;
+    }
+  }
+
+  function fromRows(rows) {
+    var byEvent = {}, order = [];
+    rows.forEach(function (r) {
+      if (!r.ts || !r.tank) return;
+      var key = r.ts + "|" + r.tank + "|" + r.type;
+      if (!byEvent[key]) {
+        byEvent[key] = { id: "r" + order.length, ts: r.ts, tank: r.tank, kind: r.type, data: {}, note: r.note || "" };
+        order.push(key);
+      }
+      if (r.note && !byEvent[key].note) byEvent[key].note = r.note;
+      absorb(byEvent[key], r);
+    });
+    var entries = order.map(function (k) { return byEvent[k]; });
+
+    var tanks = [], seen = {};
+    entries.forEach(function (e) {
+      if (seen[e.tank]) return;
+      seen[e.tank] = true;
+      tanks.push({ id: e.tank, name: e.tank, status: "running" });
+    });
+    entries.forEach(function (e) {
+      if (e.kind !== "setting") return;
+      var t = tanks.filter(function (x) { return x.id === e.tank; })[0];
+      if (!t) return;
+      if (e.data.setting === "tank_name") t.name = String(e.data.value);
+      if (e.data.setting === "tank_status") t.status = String(e.data.value);
+    });
+    if (!tanks.length) tanks.push({ id: "t1", name: "Tank 1", status: "running" });
+
+    return { tanks: tanks, active: tanks[0].id, tab: "home", entries: entries };
+  }
+
+  /* ================= helpers ================= */
+
+  function $(s, r) { return (r || document).querySelector(s); }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function uid() { return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function pretty(s) { return String(s).replace(/_/g, " "); }
+  function slug(s) { return String(s).trim().toLowerCase().replace(/\s+/g, "_"); }
+
+  function activeTank() {
+    for (var i = 0; i < state.tanks.length; i++) if (state.tanks[i].id === state.active) return state.tanks[i];
+    return state.tanks[0];
+  }
+  function tankEntries(id) {
+    return state.entries.filter(function (e) { return e.tank === id; })
+      .sort(function (a, b) { return new Date(b.ts) - new Date(a.ts); });
+  }
+  function lastEntry(id, test, asOf) {
+    var cap = asOf ? new Date(asOf) : null;
+    var list = tankEntries(id);
+    for (var i = 0; i < list.length; i++) {
+      if (cap && new Date(list[i].ts) > cap) continue;
+      if (test(list[i])) return list[i];
+    }
+    return null;
+  }
+  function daysSince(ts) { return ts ? Math.floor((Date.now() - new Date(ts)) / DAY) : null; }
+  function shortDate(ts) { var d = new Date(ts); return (d.getMonth() + 1) + "/" + d.getDate(); }
+
+  // Config resolves by timestamp, so a backdated entry sees the settings that
+  // were actually in effect then — not today's.
+  function settingValue(tankId, key, fallback, asOf) {
+    var e = lastEntry(tankId, function (x) {
+      return x.kind === "setting" && x.data.setting === key;
+    }, asOf);
+    return e ? e.data.value : fallback;
+  }
+  function schedule(tankId, asOf) {
+    return {
+      co2On: settingValue(tankId, "co2_on", "", asOf),
+      co2Off: settingValue(tankId, "co2_off", "", asOf),
+      lightOn: settingValue(tankId, "light_on", "", asOf),
+      lightOff: settingValue(tankId, "light_off", "", asOf)
+    };
+  }
+  function cadenceOf(tankId, key, def) { return Number(settingValue(tankId, key, def)); }
+  function netVolume(tankId) {
+    var v = settingValue(tankId, "net_volume_l", null);
+    return v == null ? null : Number(v);
+  }
+  function doseRule(tankId, product) {
+    var v = settingValue(tankId, "product_rule_" + product, null);
+    if (!v) return null;
+    var p = String(v).split("/");
+    if (p.length !== 2) return null;
+    return { amount: Number(p[0]), per: Number(p[1]) };
+  }
+  function suggestedDose(tankId, product) {
+    var rule = doseRule(tankId, product), vol = netVolume(tankId);
+    if (!rule || !vol) return null;
+    return Math.round((rule.amount * vol / rule.per) * 100) / 100;
+  }
+
+  function toMin(t) { if (!t) return null; var p = t.split(":"); return Number(p[0]) * 60 + Number(p[1]); }
+  function span(a, b) { var x = toMin(a), y = toMin(b); return x == null || y == null ? null : Math.round((y - x) / 6) / 10; }
+  function elapsed(a, b, date) {
+    var on = toMin(a), off = toMin(b);
+    if (on == null || off == null) return null;
+    var m = date.getHours() * 60 + date.getMinutes();
+    if (m < on || m >= off) return null;
+    return Math.round(((m - on) / 60) * 10) / 10;
+  }
+
+  function nowLocal() {
+    var d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+  }
+  function fromLocal(s) { return s ? new Date(s).toISOString() : new Date().toISOString(); }
+
+  var toastTimer;
+  function toast(msg, onUndo) {
+    var t = $("#toast");
+    t.innerHTML = "";
+    t.appendChild(document.createTextNode(msg));
+    if (onUndo) {
+      var b = el("button", "undo", "Undo");
+      b.onclick = function () { t.hidden = true; clearTimeout(toastTimer); onUndo(); };
+      t.appendChild(b);
+    }
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, onUndo ? 5000 : 2600);
+  }
+
+  function commit(entries, msg) {
+    state.entries = state.entries.concat(entries);
+    closeModal();
+    render();
+
+    var rows = [];
+    entries.forEach(function (e) { rows = rows.concat(toRows(e)); });
+    postRows(rows)
+      .then(function () { toast(msg); })
+      .catch(function () {
+        setQueue(queued().concat(rows));
+        toast(msg + " Saved on device — will sync.");
+      });
+  }
+
+  function svgNode(parts, cls) {
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    if (cls) svg.setAttribute("class", cls);
+    parts.forEach(function (p) {
+      var n;
+      if (p.c) {
+        n = document.createElementNS(NS, "circle");
+        n.setAttribute("cx", p.c[0]); n.setAttribute("cy", p.c[1]); n.setAttribute("r", p.c[2]);
+        if (p.c[3]) { n.setAttribute("fill", "currentColor"); n.setAttribute("stroke", "none"); }
+      } else if (p.e) {
+        n = document.createElementNS(NS, "ellipse");
+        n.setAttribute("cx", p.e[0]); n.setAttribute("cy", p.e[1]);
+        n.setAttribute("rx", p.e[2]); n.setAttribute("ry", p.e[3]);
+      } else {
+        n = document.createElementNS(NS, "path");
+        n.setAttribute("d", p.d);
+      }
+      svg.appendChild(n);
+    });
+    return svg;
+  }
+  function waveSvg(late) {
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "wave");
+    svg.setAttribute("viewBox", "0 0 240 10");
+    svg.setAttribute("preserveAspectRatio", "none");
+    svg.setAttribute("aria-hidden", "true");
+    var p = document.createElementNS(NS, "path");
+    p.setAttribute("d", "M0 6 q30 -7 60 0 t60 0 t60 0 t60 0 V10 H0 Z");
+    p.setAttribute("fill", late ? "#FAE3BE" : "#C7E7E0");
+    svg.appendChild(p);
+    return svg;
+  }
+
+  /* ================= rosters ================= */
+
+  function rosterOf(tankId, kind) {
+    var counts = {};
+    tankEntries(tankId).slice().reverse().forEach(function (e) {
+      if (e.kind !== kind) return;
+      var s = e.data.species;
+      if (!s) return;
+      if (!(s in counts)) counts[s] = 0;
+      if (e.data.event === "added") counts[s] += (e.data.count || 1);
+      else if (e.data.event === "lost" || e.data.event === "removed") counts[s] -= (e.data.count || 1);
+    });
+    return Object.keys(counts).filter(function (k) { return counts[k] > 0; })
+      .map(function (k) { return { species: k, count: counts[k] }; });
+  }
+
+  /* ================= due engine ================= */
+
+  function quarterStart(months) {
+    var now = new Date(), y = now.getFullYear();
+    for (var back = 0; back < 24; back++) {
+      var m = now.getMonth() - back;
+      var yy = y + Math.floor(m / 12), mm = ((m % 12) + 12) % 12;
+      if (months.indexOf(mm) !== -1) return new Date(yy, mm, 1);
+    }
+    return new Date(y, 0, 1);
+  }
+  function nextQuarterStart(months) {
+    var now = new Date(), y = now.getFullYear();
+    for (var f = 1; f < 24; f++) {
+      var m = now.getMonth() + f;
+      var yy = y + Math.floor(m / 12), mm = ((m % 12) + 12) % 12;
+      if (months.indexOf(mm) !== -1) return new Date(yy, mm, 1);
+    }
+    return null;
+  }
+
+  function dues(tankId) {
+    var out = { now: [], soon: [] };
+    if (activeTank().status === "paused") return out;
+
+    function rolling(label, test, interval) {
+      var last = lastEntry(tankId, test);
+      var d = last ? daysSince(last.ts) : null;
+      if (d === null) { out.now.push({ label: label, detail: "never logged", late: true }); return; }
+      if (d >= interval) out.now.push({ label: label, detail: d + "d ago", late: true });
+      else if (interval - d <= 3) out.soon.push({ label: label, detail: "in " + (interval - d) + "d" });
+    }
+
+    rolling("Water change", function (e) { return e.kind === "water_change"; },
+      cadenceOf(tankId, "cadence_water_change", 7));
+    rolling("Glass", function (e) { return e.kind === "water_change" && e.data.glass; },
+      cadenceOf(tankId, "cadence_glass", 14));
+    rolling("Iodine", function (e) { return e.kind === "dose" && /iodide|iodine/.test(e.data.product); },
+      cadenceOf(tankId, "cadence_iodine", 28));
+
+    function cyclical(label, task, months) {
+      var start = quarterStart(months);
+      var last = lastEntry(tankId, function (e) { return e.kind === "maintenance" && e.data.task === task; });
+      if (!last || new Date(last.ts) < start) {
+        var wks = Math.floor((Date.now() - start) / (DAY * 7));
+        out.now.push({ label: label, detail: wks + "w into cycle", late: wks > 1 });
+      } else {
+        var next = nextQuarterStart(months);
+        if (next) {
+          var days = Math.ceil((next - Date.now()) / DAY);
+          if (days <= 21) out.soon.push({ label: label, detail: "in " + days + "d" });
+        }
+      }
+    }
+    cyclical("Filter & pipes", "filter_pipes", [0, 3, 6, 9]);
+    cyclical("Reactor", "reactor", [0, 6]);
+
+    return out;
+  }
+
+  /* ================= sheet rows ================= */
+
+  function toRows(e) {
+    var rows = [];
+    function push(metric, value, unit) {
+      rows.push({ ts: e.ts, tank: e.tank, type: e.kind, metric: metric, value: value, unit: unit || "", note: e.note || "" });
+    }
+    if (e.kind === "water_change") {
+      push("percent", e.data.percent, "%");
+      if (e.data.refill_l) push("refill", e.data.refill_l, "L");
+      if (e.data.glass) push("glass", "cleaned", "");
+    } else if (e.kind === "dose") push(e.data.product, e.data.amount, e.data.unit);
+    else if (e.kind === "test") {
+      ["ammonia", "nitrite", "nitrate"].forEach(function (k) {
+        if (e.data[k] != null) push(k, e.data[k], "ppm");
+      });
+    } else if (e.kind === "checker") {
+      push("drop_checker", e.data.checker, "hour_" + e.data.hour);
+      if (e.data.co2 != null) push("co2_elapsed", e.data.co2, "hours");
+      if (e.data.light != null) push("light_elapsed", e.data.light, "hours");
+    } else if (e.kind === "observation") {
+      if ((e.data.behavior || []).length) push("behavior", e.data.behavior.join("|"), "");
+      else push("note", "", "");
+    } else if (e.kind === "maintenance") push("task", e.data.task, "");
+    else if (e.kind === "livestock") push(e.data.event + "_" + e.data.species, e.data.count, "count");
+    else if (e.kind === "plant") push(e.data.event + "_" + e.data.species, 1, "count");
+    else if (e.kind === "setting") push(e.data.setting, e.data.value, e.data.unit);
+    else push("note", "", "");
+    return rows;
+  }
+
+  function describe(e) {
+    if (e.kind === "water_change") {
+      var s = e.data.percent + "% water change";
+      if (e.data.glass) s += " · glass";
+      if (e.data.refill_l) s += " · " + e.data.refill_l + "L back";
+      return s;
+    }
+    if (e.kind === "dose") return e.data.amount + " " + e.data.unit + " " + pretty(e.data.product);
+    if (e.kind === "test") {
+      var labels = { ammonia: "NH₃", nitrite: "NO₂", nitrate: "NO₃" };
+      return ["ammonia", "nitrite", "nitrate"].filter(function (k) { return e.data[k] != null; })
+        .map(function (k) { return labels[k] + " " + e.data[k]; }).join(" · ");
+    }
+    if (e.kind === "checker") {
+      var t = "Checker " + e.data.checker + " at " + e.data.hour + ":00";
+      if (e.data.co2 != null) t += " · CO₂ +" + e.data.co2 + "h";
+      return t;
+    }
+    if (e.kind === "observation") {
+      var b = (e.data.behavior || []).map(function (id) {
+        for (var i = 0; i < BEHAVIOR.length; i++) if (BEHAVIOR[i].id === id) return BEHAVIOR[i].label;
+        return id;
+      }).join(", ");
+      return b || "Note";
+    }
+    if (e.kind === "maintenance") {
+      for (var i = 0; i < MAINTENANCE.length; i++) if (MAINTENANCE[i].id === e.data.task) return MAINTENANCE[i].label + " cleaned";
+      return pretty(e.data.task);
+    }
+    if (e.kind === "livestock") return e.data.event + " · " + e.data.count + " " + pretty(e.data.species);
+    if (e.kind === "plant") return e.data.event + " · " + pretty(e.data.species);
+    if (e.kind === "setting") {
+      if (e.data.unit === "time") return pretty(e.data.setting) + " → " + e.data.value;
+      return pretty(e.data.setting) + " → " + e.data.value + " " + e.data.unit;
+    }
+    return "Note";
+  }
+
+  /* ================= tiles ================= */
+
+  var TILES = [
+    { label: "Water change", desc: "50%, dosing, glass, trim", ic: "waves", color: "#2E7FB8", tint: "#E4EFF8", hero: true, open: function () { waterChangeModal(); } },
+    { label: "Drop checker", desc: "Colour and CO₂ window", ic: "checker", color: "#C98A22", tint: "#FBF0DA", hero: true, open: function () { checkerModal(); } },
+    { label: "Water test", desc: "NH₃, NO₂, NO₃", ic: "vial", color: "#3F9C74", tint: "#E4F3EC", open: function () { testModal(); } },
+    { label: "Observation", desc: "Behaviour and notes", ic: "eye", color: "#6C77CE", tint: "#ECEEFA", open: function () { observationModal(); } },
+    { label: "Maintenance", desc: "Filter, pipes, reactor", ic: "sparkle", color: "#3EA5A2", tint: "#E2F3F2", open: function () { maintenanceModal(); } },
+    { label: "Livestock", desc: "Added, lost, molt", ic: "fish", color: "#D46F5B", tint: "#FBEAE5", open: function () { livestockModal(); } },
+    { label: "Plants", desc: "Added or removed", ic: "leaf", color: "#5C9E3C", tint: "#EAF4E2", open: function () { plantModal(); } },
+    { label: "Setting", desc: "Bubble rate, light", ic: "sliders", color: "#7E8794", tint: "#EEF0F3", open: function () { settingModal(); } }
+  ];
+
+  function tileNode(t) {
+    var b = el("button", "tile" + (t.hero ? " hero" : ""));
+    if (t.hero) {
+      b.style.background = t.color;
+      b.appendChild(svgNode(ICONS[t.ic]));
+    } else {
+      var puck = el("div", "puck");
+      puck.style.background = t.tint;
+      puck.style.color = t.color;
+      puck.appendChild(svgNode(ICONS[t.ic]));
+      b.appendChild(puck);
+    }
+    var txt = el("div");
+    txt.appendChild(el("strong", null, t.label));
+    txt.appendChild(el("span", null, t.desc));
+    b.appendChild(txt);
+    b.onclick = t.open;
+    return b;
+  }
+
+  function tileGrid(list) {
+    var g = el("div", "tiles");
+    list.forEach(function (t) { g.appendChild(tileNode(t)); });
+    return g;
+  }
+
+  /* ================= render ================= */
+
+  var TABS = [
+    { id: "home", label: "Home" },
+    { id: "log", label: "Log" },
+    { id: "history", label: "History" },
+    { id: "reference", label: "Reference" }
+  ];
+
+  function render() {
+    var app = $("#app");
+    app.innerHTML = "";
+    var tank = activeTank();
+
+    app.appendChild(el("p", "eyebrow", "Aquascape log"));
+
+    var tanks = el("div", "tanks");
+    state.tanks.forEach(function (t) {
+      var b = el("button", t.status === "paused" ? "paused" : "", t.name);
+      b.setAttribute("aria-pressed", String(t.id === state.active));
+      b.onclick = function () { state.active = t.id; persistUI(); render(); };
+      tanks.appendChild(b);
+    });
+    var add = el("button", "add", "+");
+    add.setAttribute("aria-label", "Add a tank");
+    add.onclick = addTank;
+    tanks.appendChild(add);
+    app.appendChild(tanks);
+
+    if (state.tab === "log") app.appendChild(tileGrid(TILES));
+    else if (state.tab === "history") renderHistory(app, tank);
+    else if (state.tab === "reference") renderReference(app, tank);
+    else renderHome(app, tank);
+
+    renderTabs();
+  }
+
+  function renderTabs() {
+    var nav = $("#tabs");
+    nav.innerHTML = "";
+    var inner = el("div", "inner");
+    TABS.forEach(function (t) {
+      var b = el("button", null, t.label);
+      if (state.tab === t.id) b.setAttribute("aria-current", "page");
+      b.onclick = function () { state.tab = t.id; persistUI(); render(); };
+      inner.appendChild(b);
+    });
+    nav.appendChild(inner);
+  }
+
+  function renderHome(app, tank) {
+    if (tank.status === "paused") {
+      var pc = el("div", "paused-card");
+      pc.appendChild(el("h2", null, "Not running"));
+      pc.appendChild(el("p", null, tank.why || "Paused. Logging stays available."));
+      app.appendChild(pc);
+    } else {
+      app.appendChild(meniscusCard(tank));
+    }
+
+    app.appendChild(tileGrid(TILES.slice(0, 2)));
+
+    var d = dues(tank.id);
+    app.appendChild(dueCard("Due", d.now, tank));
+    if (d.soon.length) app.appendChild(dueCard("Upcoming", d.soon, tank));
+
+    app.appendChild(recentCard(tank));
+  }
+
+  function meniscusCard(tank) {
+    var card = el("div", "meniscus");
+    var last = lastEntry(tank.id, function (e) { return e.kind === "water_change"; });
+    var d = last ? daysSince(last.ts) : null;
+    var interval = cadenceOf(tank.id, "cadence_water_change", 7);
+    var late = d !== null && d >= interval;
+
+    card.appendChild(el("span", "count", d === null ? "—" : String(d)));
+    card.appendChild(el("div", "caption", d === null ? "no water change logged yet" : "days since water change"));
+
+    var water = el("div", "water" + (late ? " late" : ""));
+    water.style.height = (d === null ? 0 : Math.min(d / interval, 1) * 56) + "%";
+    water.appendChild(waveSvg(late));
+    card.appendChild(water);
+
+    var meta = el("div", "fill-meta");
+    meta.appendChild(el("span", null, last ? shortDate(last.ts) + " · " + last.data.percent + "%" : "—"));
+    meta.appendChild(el("span", null, d === null ? "" : late ? "due" : "due in " + (interval - d) + "d"));
+    card.appendChild(meta);
+    return card;
+  }
+
+  function dueCard(title, items, tank) {
+    var card = el("div", "due");
+    card.appendChild(el("h3", null, title));
+    if (!items.length) {
+      card.appendChild(el("p", "clear", tank.status === "paused" ? "Nothing scheduled while paused." : "Nothing due."));
+      return card;
+    }
+    var ul = el("ul");
+    items.forEach(function (it) {
+      var li = el("li", it.late ? "late" : "");
+      li.appendChild(el("span", null, it.label));
+      li.appendChild(el("span", null, it.detail));
+      ul.appendChild(li);
+    });
+    card.appendChild(ul);
+    return card;
+  }
+
+  function recentCard(tank) {
+    var wrap = el("div", "recent");
+    wrap.appendChild(el("h3", null, "Last logged"));
+    var list = tankEntries(tank.id).slice(0, 4);
+    if (!list.length) {
+      wrap.appendChild(el("p", "clear", "Nothing yet. Start with a water change."));
+      return wrap;
+    }
+    var ol = el("ol");
+    list.forEach(function (e) {
+      var li = el("li");
+      var t = el("time", null, shortDate(e.ts));
+      t.setAttribute("datetime", e.ts);
+      li.appendChild(t);
+      var body = el("div", "body");
+      body.appendChild(el("div", null, describe(e)));
+      if (e.note) body.appendChild(el("div", "note", e.note));
+      li.appendChild(body);
+      ol.appendChild(li);
+    });
+    wrap.appendChild(ol);
+    return wrap;
+  }
+
+  /* ---- history ---- */
+
+  var FILTERS = [
+    { id: "all", label: "All", kinds: null },
+    { id: "wc", label: "Water change", kinds: ["water_change", "dose"] },
+    { id: "checker", label: "Drop checker", kinds: ["checker"] },
+    { id: "test", label: "Test", kinds: ["test"] },
+    { id: "obs", label: "Observation", kinds: ["observation", "note"] },
+    { id: "maint", label: "Maintenance", kinds: ["maintenance"] },
+    { id: "life", label: "Livestock", kinds: ["livestock"] },
+    { id: "plant", label: "Plants", kinds: ["plant"] },
+    { id: "set", label: "Setting", kinds: ["setting"] }
+  ];
+
+  function renderHistory(app, tank) {
+    var bar = el("div", "search");
+    var input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Search entries";
+    input.value = ui.search;
+    input.oninput = function () {
+      ui.search = input.value;
+      var pos = input.selectionStart;
+      render();
+      var again = $("#app .search input");
+      if (again) { again.focus(); again.setSelectionRange(pos, pos); }
+    };
+    bar.appendChild(input);
+    app.appendChild(bar);
+
+    var pills = el("div", "pills");
+    FILTERS.forEach(function (f) {
+      var b = el("button", null, f.label);
+      b.setAttribute("aria-pressed", String(ui.filter === f.id));
+      b.onclick = function () { ui.filter = f.id; render(); };
+      pills.appendChild(b);
+    });
+    app.appendChild(pills);
+
+    var active = FILTERS.filter(function (f) { return f.id === ui.filter; })[0] || FILTERS[0];
+    var q = ui.search.trim().toLowerCase();
+    var list = tankEntries(tank.id).filter(function (e) {
+      if (active.kinds && active.kinds.indexOf(e.kind) === -1) return false;
+      if (!q) return true;
+      return (describe(e) + " " + (e.note || "")).toLowerCase().indexOf(q) !== -1;
+    });
+
+    var wrap = el("div", "history");
+    if (!list.length) {
+      wrap.appendChild(el("p", "clear", q ? "No entries match “" + ui.search + "”." : "Nothing logged for " + tank.name + " yet."));
+      app.appendChild(wrap);
+      return;
+    }
+
+    var day = null, ul = null;
+    list.forEach(function (e) {
+      var dt = new Date(e.ts), key = dt.toDateString();
+      if (key !== day) {
+        day = key;
+        var ago = daysSince(e.ts);
+        wrap.appendChild(el("h3", null,
+          dt.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
+          (ago === 0 ? " · today" : ago === 1 ? " · yesterday" : " · " + ago + "d ago")));
+        ul = el("ul");
+        wrap.appendChild(ul);
+      }
+      var li = el("li");
+      li.appendChild(el("div", null, describe(e)));
+      if (e.note) li.appendChild(el("div", "note", e.note));
+      li.appendChild(el("div", "time", dt.toTimeString().slice(0, 5)));
+      ul.appendChild(li);
+    });
+    app.appendChild(wrap);
+
+    var link = el("button", "sheetlink", "See what goes to the sheet");
+    link.style.marginTop = "24px";
+    link.onclick = rowsModal;
+    app.appendChild(link);
+  }
+
+  /* ---- reference ---- */
+
+  function refCard(title) {
+    var c = el("div", "ref");
+    c.appendChild(el("h3", null, title));
+    return c;
+  }
+  function refRow(card, left, right) {
+    var r = el("div", "row");
+    r.appendChild(el("span", null, left));
+    r.appendChild(el("span", null, right));
+    card.appendChild(r);
+  }
+
+  function renderReference(app, tank) {
+    var sch = schedule(tank.id);
+    var s1 = refCard("Schedule");
+    refRow(s1, "CO₂", sch.co2On && sch.co2Off ? sch.co2On + " – " + sch.co2Off + " · " + span(sch.co2On, sch.co2Off) + "h" : "not set");
+    refRow(s1, "Light", sch.lightOn && sch.lightOff ? sch.lightOn + " – " + sch.lightOff + " · " + span(sch.lightOn, sch.lightOff) + "h" : "not set");
+    s1.appendChild(el("p", "empty", "Set while logging a water change or checker reading."));
+    app.appendChild(s1);
+
+    var s2 = refCard("Current settings");
+    SETTINGS.forEach(function (s) {
+      var last = lastEntry(tank.id, function (e) { return e.kind === "setting" && e.data.setting === s.id; });
+      refRow(s2, s.label, last ? last.data.value + " " + s.unit + " · " + daysSince(last.ts) + "d" : "not logged");
+    });
+    var vol = netVolume(tank.id);
+    refRow(s2, "Net water volume", vol ? vol + " L" : "not measured");
+    if (!vol) s2.appendChild(el("p", "empty", "Log the litres you put back on a water change and this fills itself in."));
+    app.appendChild(s2);
+
+    var s3 = refCard("Livestock");
+    var lr = rosterOf(tank.id, "livestock");
+    if (lr.length) lr.forEach(function (x) { refRow(s3, pretty(x.species), String(x.count)); });
+    else s3.appendChild(el("p", "empty", "Fills in as you log additions and losses."));
+    app.appendChild(s3);
+
+    var s4 = refCard("Plants");
+    var pr = rosterOf(tank.id, "plant");
+    if (pr.length) pr.forEach(function (x) {
+      var lastTrim = lastEntry(tank.id, function (e) { return e.kind === "plant" && e.data.event === "trim" && e.data.species === x.species; });
+      refRow(s4, pretty(x.species), lastTrim ? "trimmed " + daysSince(lastTrim.ts) + "d ago" : "no trim logged");
+    });
+    else s4.appendChild(el("p", "empty", "Add plants to get trim buttons on the water change screen."));
+    app.appendChild(s4);
+
+    var s5 = refCard("Last test");
+    var lt = lastEntry(tank.id, function (e) { return e.kind === "test"; });
+    if (lt) refRow(s5, describe(lt), daysSince(lt.ts) + "d ago");
+    else s5.appendChild(el("p", "empty", "No test logged yet."));
+    app.appendChild(s5);
+
+    var s6 = refCard("Cadence");
+    CADENCE.forEach(function (c) { refRow(s6, c.label, "every " + cadenceOf(tank.id, c.key, c.def) + " days"); });
+    refRow(s6, "Filter & pipes", "Jan · Apr · Jul · Oct");
+    refRow(s6, "Reactor", "Jan · Jul");
+    var ce = el("button", "sheetlink", "Edit intervals");
+    ce.style.marginTop = "12px";
+    ce.onclick = cadenceModal;
+    s6.appendChild(ce);
+    app.appendChild(s6);
+
+    var s7 = refCard("API colour card");
+    ["ammonia", "nitrite", "nitrate"].forEach(function (k) {
+      s7.appendChild(el("div", "scale-label", k + " (ppm)"));
+      var row = el("div", "swatches");
+      API[k].steps.forEach(function (step, i) {
+        var sw = el("div", "swatch");
+        sw.style.background = API[k].colors[i];
+        sw.appendChild(el("span", null, String(step)));
+        row.appendChild(sw);
+      });
+      var w = el("div", "swatch-row");
+      w.appendChild(row);
+      s7.appendChild(w);
+    });
+    app.appendChild(s7);
+  }
+
+  /* ================= modal plumbing ================= */
+
+  function openModal(title, sub, build, onSave, saveLabel, hideCancel) {
+    var scrim = $("#scrim");
+    scrim.innerHTML = "";
+    var m = el("div", "modal");
+    m.setAttribute("role", "dialog");
+    m.setAttribute("aria-modal", "true");
+    m.appendChild(el("h2", null, title));
+    m.appendChild(el("p", "sub", sub));
+
+    var form = el("div");
+    m.appendChild(form);
+    function refresh() { form.innerHTML = ""; build(form, refresh); }
+    refresh();
+
+    var actions = el("div", "modal-actions");
+    var saveBtn = el("button", "save", saveLabel || "Save");
+    saveBtn.onclick = onSave;
+    actions.appendChild(saveBtn);
+    if (!hideCancel) {
+      var cancel = el("button", "cancel", "Cancel");
+      cancel.onclick = closeModal;
+      actions.appendChild(cancel);
+    }
+    m.appendChild(actions);
+
+    scrim.appendChild(m);
+    scrim.hidden = false;
+    scrim.onclick = function (ev) { if (ev.target === scrim) closeModal(); };
+  }
+
+  function closeModal() {
+    $("#scrim").hidden = true;
+    $("#scrim").innerHTML = "";
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !$("#scrim").hidden) closeModal();
+  });
+
+  function labField(labelText) {
+    var f = el("div", "field");
+    f.appendChild(el("div", "lab", labelText));
+    return f;
+  }
+
+  function whenField(form) {
+    var f = el("div", "field");
+    var l = el("label", null, "When");
+    l.setAttribute("for", "when");
+    f.appendChild(l);
+    var i = document.createElement("input");
+    i.type = "datetime-local";
+    i.id = "when";
+    i.value = draft.when;
+    i.onchange = function () { draft.when = i.value; };
+    f.appendChild(i);
+    form.appendChild(f);
+  }
+
+  function noteField(form, labelText) {
+    var f = el("div", "field");
+    var l = el("label", null, labelText || "Note");
+    l.setAttribute("for", "note-input");
+    f.appendChild(l);
+    var ta = el("textarea");
+    ta.id = "note-input";
+    ta.placeholder = "Optional.";
+    ta.value = draft.note || "";
+    ta.oninput = function () { draft.note = ta.value; };
+    f.appendChild(ta);
+    form.appendChild(f);
+  }
+
+  function sliderField(labelText, min, max, step, value, format, onChange) {
+    var f = el("div", "field");
+    var head = el("div", "slider-head");
+    head.appendChild(el("div", "lab", labelText));
+    var val = el("div", "slider-val", format(value));
+    head.appendChild(val);
+    f.appendChild(head);
+    var i = document.createElement("input");
+    i.type = "range";
+    i.min = min; i.max = max; i.step = step; i.value = value;
+    i.setAttribute("aria-label", labelText);
+    i.oninput = function () { var v = Number(i.value); val.textContent = format(v); onChange(v); };
+    f.appendChild(i);
+    var scale = el("div", "slider-scale");
+    scale.appendChild(el("span", null, format(min)));
+    scale.appendChild(el("span", null, format(max)));
+    f.appendChild(scale);
+    return f;
+  }
+
+  function chipRow(options, selected, onToggle) {
+    var row = el("div", "chips");
+    options.forEach(function (o) {
+      var c = el("button", "chip" + (o.flag ? " flag" : ""), o.label);
+      c.setAttribute("aria-pressed", String(selected.indexOf(o.id) !== -1));
+      c.onclick = function () { onToggle(o.id); };
+      row.appendChild(c);
+    });
+    return row;
+  }
+
+  /* ---- the shared CO₂ / light / bubble panel ---- */
+
+  function conditionsPanel(form, refresh, tankId) {
+    var p = el("div", "panel");
+    p.appendChild(el("div", "lab", "CO₂ and light"));
+
+    if (draft.unlocked) {
+      [["co2On", "CO₂ on"], ["co2Off", "CO₂ off"], ["lightOn", "Light on"], ["lightOff", "Light off"]]
+        .forEach(function (x) {
+          var f = el("div", "field");
+          var l = el("label", null, x[1]);
+          l.setAttribute("for", x[0]);
+          f.appendChild(l);
+          var i = document.createElement("input");
+          i.type = "time";
+          i.id = x[0];
+          i.value = draft[x[0]];
+          i.onchange = function () { draft[x[0]] = i.value; };
+          f.appendChild(i);
+          p.appendChild(f);
+        });
+      p.appendChild(sliderField("Bubble rate", 0.5, 6, 0.5, draft.bubble,
+        function (v) { return v + " bps"; },
+        function (v) { draft.bubble = v; }));
+      var done = el("button", "sheetlink", "Lock these in");
+      done.onclick = function () { draft.unlocked = false; refresh(); };
+      p.appendChild(done);
+    } else {
+      [["CO₂", draft.co2On, draft.co2Off], ["Light", draft.lightOn, draft.lightOff]].forEach(function (x) {
+        var r = el("div", "winrow");
+        r.appendChild(el("span", null, x[0]));
+        r.appendChild(el("span", null, x[1] && x[2] ? x[1] + " – " + x[2] : "not set"));
+        p.appendChild(r);
+      });
+      var br = el("div", "winrow");
+      br.appendChild(el("span", null, "Bubble rate"));
+      br.appendChild(el("span", null, draft.bubble ? draft.bubble + " bps" : "not set"));
+      p.appendChild(br);
+
+      var lock = el("div", "locked");
+      lock.appendChild(el("em", null, "locked to last logged"));
+      var ed = el("button", "sheetlink", "Change");
+      ed.onclick = function () { draft.unlocked = true; refresh(); };
+      lock.appendChild(ed);
+      p.appendChild(lock);
+    }
+    form.appendChild(p);
+  }
+
+  function loadConditions(tankId) {
+    var s = schedule(tankId);
+    draft.co2On = s.co2On; draft.co2Off = s.co2Off;
+    draft.lightOn = s.lightOn; draft.lightOff = s.lightOff;
+    draft.bubble = Number(settingValue(tankId, "bubble_rate", 2));
+    draft.unlocked = false;
+  }
+
+  function conditionEntries(tankId, ts) {
+    var cur = schedule(tankId, ts);
+    var out = [];
+    [["co2On", "co2_on"], ["co2Off", "co2_off"], ["lightOn", "light_on"], ["lightOff", "light_off"]]
+      .forEach(function (x) {
+        if (draft[x[0]] && draft[x[0]] !== cur[x[0]]) {
+          out.push({ id: uid(), ts: ts, tank: tankId, kind: "setting",
+            data: { setting: x[1], value: draft[x[0]], unit: "time" }, note: "" });
+        }
+      });
+    var curBubble = Number(settingValue(tankId, "bubble_rate", null, ts));
+    if (draft.bubble && draft.bubble !== curBubble) {
+      out.push({ id: uid(), ts: ts, tank: tankId, kind: "setting",
+        data: { setting: "bubble_rate", value: draft.bubble, unit: "bps" }, note: "" });
+    }
+    return out;
+  }
+
+  /* ================= water change ================= */
+
+  function waterChangeModal() {
+    var tank = activeTank();
+    var lastFert = lastEntry(tank.id, function (e) { return e.kind === "dose" && e.data.unit === "pumps"; });
+    var lastIod = lastEntry(tank.id, function (e) { return e.kind === "dose" && /iodide|iodine/.test(e.data.product); });
+    var iodDays = lastIod ? daysSince(lastIod.ts) : 999;
+    var iodProduct = lastIod ? lastIod.data.product : "seachem_reef_iodide";
+    var suggested = suggestedDose(tank.id, iodProduct);
+
+    draft = {
+      when: nowLocal(),
+      percent: 50,
+      refill: "",
+      dose: true,
+      fertProduct: lastFert ? lastFert.data.product : "tropica_premium",
+      pumps: lastFert ? lastFert.data.amount : 3,
+      iodine: iodDays >= cadenceOf(tank.id, "cadence_iodine", 28),
+      iodProduct: iodProduct,
+      iodAmount: lastIod ? lastIod.data.amount : (suggested || 0.5),
+      glass: true,
+      trims: [],
+      note: ""
+    };
+    loadConditions(tank.id);
+
+    openModal("Water change", tank.name, function (form, refresh) {
+      whenField(form);
+
+      form.appendChild(sliderField("Percent", 20, 80, 10, draft.percent,
+        function (v) { return v + "%"; },
+        function (v) { draft.percent = v; }));
+
+      // three icon switches
+      var sw = el("div", "switches");
+      [
+        { key: "dose", label: "Dosing", ic: "drop" },
+        { key: "iodine", label: "Iodine", ic: "vial" },
+        { key: "glass", label: "Glass", ic: "glass" }
+      ].forEach(function (s) {
+        var b = el("button", "switch");
+        b.setAttribute("aria-pressed", String(!!draft[s.key]));
+        b.appendChild(svgNode(ICONS[s.ic]));
+        b.appendChild(el("b", null, s.label));
+        b.onclick = function () { draft[s.key] = !draft[s.key]; refresh(); };
+        sw.appendChild(b);
+      });
+      form.appendChild(sw);
+
+      if (draft.dose) {
+        var fp = el("div", "panel");
+        fp.appendChild(el("div", "lab", pretty(draft.fertProduct)));
+        fp.appendChild(sliderField("Pumps", 1, 4, 0.5, draft.pumps,
+          function (v) { return v + (v === 1 ? " pump" : " pumps"); },
+          function (v) { draft.pumps = v; }));
+        var swap = el("button", "sheetlink", "Switched fertiliser?");
+        swap.onclick = function () {
+          var name = window.prompt("Fertiliser name", pretty(draft.fertProduct));
+          if (name) { draft.fertProduct = slug(name); refresh(); }
+        };
+        fp.appendChild(swap);
+        form.appendChild(fp);
+      }
+
+      if (draft.iodine) {
+        var ip = el("div", "panel");
+        ip.appendChild(el("div", "lab", pretty(draft.iodProduct)));
+        ip.appendChild(sliderField("Amount", 0.25, 3, 0.25, draft.iodAmount,
+          function (v) { return v + " ml"; },
+          function (v) { draft.iodAmount = v; refreshMath(); }));
+
+        var math = el("p", "mathline");
+        ip.appendChild(math);
+        function refreshMath() {
+          var vol = netVolume(tank.id);
+          var sug = suggestedDose(tank.id, draft.iodProduct);
+          if (!vol) { math.className = "mathline"; math.textContent = "no volume measured — log refill litres to enable the check"; return; }
+          if (sug == null) { math.className = "mathline"; math.textContent = "no dose rule set for this product"; return; }
+          var over = draft.iodAmount / sug;
+          math.className = "mathline" + (over > 2 ? " off" : "");
+          math.textContent = "label math for " + vol + " L: " + sug + " ml" +
+            (over > 2 ? "  ·  you're at " + (Math.round(over * 10) / 10) + "×" : "");
+        }
+        refreshMath();
+        form.appendChild(ip);
+      }
+
+      // trim
+      var plants = rosterOf(tank.id, "plant");
+      var tf = labField("Trimmed");
+      if (plants.length) {
+        tf.appendChild(chipRow(
+          plants.map(function (p) { return { id: p.species, label: pretty(p.species) }; }),
+          draft.trims,
+          function (id) {
+            var i = draft.trims.indexOf(id);
+            if (i === -1) draft.trims.push(id); else draft.trims.splice(i, 1);
+            refresh();
+          }
+        ));
+      } else {
+        tf.appendChild(el("p", "mathline", "No plants logged yet — add them from the Plants tile."));
+      }
+      form.appendChild(tf);
+
+      conditionsPanel(form, refresh, tank.id);
+
+      var rf = el("div", "field");
+      var rl = el("label", null, "Litres put back (optional)");
+      rl.setAttribute("for", "refill");
+      rf.appendChild(rl);
+      var ri = document.createElement("input");
+      ri.type = "number";
+      ri.id = "refill";
+      ri.step = "0.5";
+      ri.min = "0";
+      ri.placeholder = "Measure once and net volume fills itself in";
+      ri.value = draft.refill;
+      ri.oninput = function () { draft.refill = ri.value; };
+      rf.appendChild(ri);
+      form.appendChild(rf);
+
+      noteField(form);
+    }, function () {
+      var ts = fromLocal(draft.when);
+      var id = state.active;
+      var out = conditionEntries(id, ts);
+
+      var wc = { id: uid(), ts: ts, tank: id, kind: "water_change",
+        data: { percent: draft.percent, glass: !!draft.glass }, note: draft.note || "" };
+      if (draft.refill) wc.data.refill_l = Number(draft.refill);
+      out.push(wc);
+
+      if (draft.dose) out.push({ id: uid(), ts: ts, tank: id, kind: "dose",
+        data: { product: draft.fertProduct, amount: draft.pumps, unit: "pumps" }, note: "" });
+      if (draft.iodine) out.push({ id: uid(), ts: ts, tank: id, kind: "dose",
+        data: { product: draft.iodProduct, amount: draft.iodAmount, unit: "ml" }, note: "" });
+
+      draft.trims.forEach(function (sp) {
+        out.push({ id: uid(), ts: ts, tank: id, kind: "plant",
+          data: { event: "trim", species: sp }, note: "" });
+      });
+
+      if (draft.refill && draft.percent) {
+        var derived = Math.round(Number(draft.refill) / (draft.percent / 100));
+        if (derived !== Number(settingValue(id, "net_volume_l", null))) {
+          out.push({ id: uid(), ts: ts, tank: id, kind: "setting",
+            data: { setting: "net_volume_l", value: derived, unit: "L" }, note: "derived from refill" });
+        }
+      }
+
+      commit(out, "Water change logged.");
+    }, "Log it");
+  }
+
+  /* ================= drop checker ================= */
+
+  function checkerModal() {
+    var tank = activeTank();
+    draft = { when: nowLocal(), checker: null, note: "" };
+    loadConditions(tank.id);
+
+    openModal("Drop checker", tank.name, function (form, refresh) {
+      var f = labField("Colour you're reading");
+      var pick = el("div", "picker");
+      CHECKER.forEach(function (c) {
+        var b = el("button");
+        b.setAttribute("aria-pressed", String(draft.checker === c.id));
+        var blob = el("div", "blob");
+        blob.style.background = c.color;
+        b.appendChild(blob);
+        b.appendChild(el("b", null, c.label));
+        b.appendChild(el("i", null, c.hint));
+        b.onclick = function () { draft.checker = c.id; refresh(); };
+        pick.appendChild(b);
+      });
+      f.appendChild(pick);
+      form.appendChild(f);
+
+      whenField(form);
+      conditionsPanel(form, refresh, tank.id);
+
+      var when = new Date(fromLocal(draft.when));
+      var co2 = elapsed(draft.co2On, draft.co2Off, when);
+      var c2 = el("div", "caution");
+      c2.innerHTML = co2 != null
+        ? "<strong>" + co2 + "h into the CO₂ window.</strong> The checker lags one to two hours, so this colour reflects roughly " + Math.max(0, co2 - 2) + "h to " + Math.max(0, co2 - 1) + "h in."
+        : "<strong>Outside the CO₂ window.</strong> Recorded as such — the reading still logs.";
+      form.appendChild(c2);
+
+      noteField(form);
+    }, function () {
+      if (!draft.checker) { toast("Pick a colour."); return; }
+      var ts = fromLocal(draft.when);
+      var when = new Date(ts);
+      var out = conditionEntries(state.active, ts);
+      out.push({ id: uid(), ts: ts, tank: state.active, kind: "checker",
+        data: {
+          checker: draft.checker, hour: when.getHours(),
+          co2: elapsed(draft.co2On, draft.co2Off, when),
+          light: elapsed(draft.lightOn, draft.lightOff, when)
+        }, note: draft.note || "" });
+      commit(out, "Checker logged.");
+    }, "Log reading");
+  }
+
+  /* ================= other entries ================= */
+
+  function testModal() {
+    draft = { when: nowLocal(), ammonia: null, nitrite: null, nitrate: null, note: "" };
+    openModal("Water test", activeTank().name + " · match the colour you read", function (form, refresh) {
+      ["ammonia", "nitrite", "nitrate"].forEach(function (k) {
+        var f = labField(k + " (ppm)");
+        var row = el("div", "swatches");
+        API[k].steps.forEach(function (step, i) {
+          var b = el("button", "swatch");
+          b.style.background = API[k].colors[i];
+          b.setAttribute("aria-pressed", String(draft[k] === step));
+          b.setAttribute("aria-label", k + " " + step + " ppm");
+          b.appendChild(el("span", null, String(step)));
+          b.onclick = function () { draft[k] = step; refresh(); };
+          row.appendChild(b);
+        });
+        var w = el("div", "swatch-row");
+        w.appendChild(row);
+        f.appendChild(w);
+        form.appendChild(f);
+      });
+      whenField(form);
+      noteField(form);
+    }, function () {
+      if (draft.ammonia === null && draft.nitrite === null && draft.nitrate === null) {
+        toast("Pick at least one value."); return;
+      }
+      commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "test",
+        data: { ammonia: draft.ammonia, nitrite: draft.nitrite, nitrate: draft.nitrate },
+        note: draft.note || "" }], "Test logged.");
+    });
+  }
+
+  function observationModal() {
+    draft = { when: nowLocal(), behavior: [], note: "" };
+    openModal("Observation", activeTank().name, function (form, refresh) {
+      var f = labField("Behaviour");
+      f.appendChild(chipRow(BEHAVIOR, draft.behavior, function (id) {
+        var i = draft.behavior.indexOf(id);
+        if (i === -1) draft.behavior.push(id); else draft.behavior.splice(i, 1);
+        refresh();
+      }));
+      form.appendChild(f);
+      noteField(form, "What you saw");
+      whenField(form);
+    }, function () {
+      if (!draft.behavior.length && !draft.note.trim()) { toast("Nothing to log yet."); return; }
+      commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "observation",
+        data: { behavior: draft.behavior }, note: draft.note || "" }], "Observation logged.");
+    });
+  }
+
+  function maintenanceModal() {
+    draft = { when: nowLocal(), task: null, note: "" };
+    openModal("Maintenance", activeTank().name, function (form, refresh) {
+      var f = labField("Task");
+      f.appendChild(chipRow(MAINTENANCE, draft.task ? [draft.task] : [], function (id) {
+        draft.task = draft.task === id ? null : id;
+        refresh();
+      }));
+      form.appendChild(f);
+      whenField(form);
+      noteField(form);
+    }, function () {
+      if (!draft.task) { toast("Pick a task."); return; }
+      commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "maintenance",
+        data: { task: draft.task }, note: draft.note || "" }], "Maintenance logged.");
+    });
+  }
+
+  function livestockModal() {
+    draft = { when: nowLocal(), event: "added", species: "", count: 1, note: "" };
+    openModal("Livestock", activeTank().name, function (form, refresh) {
+      var f1 = labField("What happened");
+      f1.appendChild(chipRow(
+        [{ id: "added", label: "Added" }, { id: "lost", label: "Lost", flag: true }, { id: "molt", label: "Molt" }],
+        [draft.event], function (id) { draft.event = id; refresh(); }));
+      form.appendChild(f1);
+
+      var f2 = el("div", "field");
+      var l2 = el("label", null, "Species");
+      l2.setAttribute("for", "sp");
+      f2.appendChild(l2);
+      var i2 = document.createElement("input");
+      i2.type = "text"; i2.id = "sp"; i2.value = draft.species; i2.placeholder = "Ember tetra";
+      i2.oninput = function () { draft.species = i2.value; };
+      f2.appendChild(i2);
+      form.appendChild(f2);
+
+      form.appendChild(sliderField("Count", 1, 20, 1, draft.count,
+        function (v) { return String(v); }, function (v) { draft.count = v; }));
+
+      whenField(form);
+      noteField(form);
+    }, function () {
+      if (!draft.species.trim()) { toast("Name the species."); return; }
+      commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "livestock",
+        data: { event: draft.event, species: slug(draft.species), count: draft.count },
+        note: draft.note || "" }], "Livestock logged.");
+    });
+  }
+
+  function plantModal() {
+    draft = { when: nowLocal(), event: "added", species: "", note: "" };
+    openModal("Plants", activeTank().name, function (form, refresh) {
+      var f1 = labField("What happened");
+      f1.appendChild(chipRow(
+        [{ id: "added", label: "Added" }, { id: "removed", label: "Removed" }],
+        [draft.event], function (id) { draft.event = id; refresh(); }));
+      form.appendChild(f1);
+
+      var existing = rosterOf(activeTank().id, "plant");
+      if (draft.event === "removed" && existing.length) {
+        var f0 = labField("In the tank");
+        f0.appendChild(chipRow(
+          existing.map(function (p) { return { id: p.species, label: pretty(p.species) }; }),
+          [slug(draft.species)],
+          function (id) { draft.species = pretty(id); refresh(); }));
+        form.appendChild(f0);
+      }
+
+      var f2 = el("div", "field");
+      var l2 = el("label", null, "Species");
+      l2.setAttribute("for", "psp");
+      f2.appendChild(l2);
+      var i2 = document.createElement("input");
+      i2.type = "text"; i2.id = "psp"; i2.value = draft.species; i2.placeholder = "Monte Carlo";
+      i2.oninput = function () { draft.species = i2.value; };
+      f2.appendChild(i2);
+      form.appendChild(f2);
+
+      whenField(form);
+      noteField(form);
+    }, function () {
+      if (!draft.species.trim()) { toast("Name the plant."); return; }
+      commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "plant",
+        data: { event: draft.event, species: slug(draft.species) },
+        note: draft.note || "" }], "Plant logged.");
+    });
+  }
+
+  function settingModal() {
+    draft = { when: nowLocal(), setting: null, value: "", note: "" };
+    var recent = tankEntries(state.active).filter(function (e) {
+      return e.kind === "setting" && e.data.unit !== "days" && daysSince(e.ts) <= 14;
+    });
+
+    openModal("Setting change", activeTank().name, function (form, refresh) {
+      if (recent.length) {
+        var c = el("div", "caution");
+        var r = recent[0];
+        c.innerHTML = "<strong>One variable at a time.</strong> You changed " + pretty(r.data.setting) +
+          " " + daysSince(r.ts) + " days ago. A second change now makes the next observation ambiguous.";
+        form.appendChild(c);
+      }
+      var f = labField("What changed");
+      f.appendChild(chipRow(SETTINGS.map(function (s) { return { id: s.id, label: s.label }; }),
+        draft.setting ? [draft.setting] : [],
+        function (id) { draft.setting = draft.setting === id ? null : id; refresh(); }));
+      form.appendChild(f);
+
+      if (draft.setting) {
+        var spec = SETTINGS.filter(function (s) { return s.id === draft.setting; })[0];
+        var current = Number(settingValue(state.active, spec.id, spec.min));
+        if (draft.value === "") draft.value = current;
+        form.appendChild(sliderField("New value", spec.min, spec.max, spec.step, draft.value,
+          function (v) { return v + " " + spec.unit; },
+          function (v) { draft.value = v; }));
+      }
+      whenField(form);
+      noteField(form);
+    }, function () {
+      if (!draft.setting || draft.value === "") { toast("Pick a setting and a value."); return; }
+      var spec = SETTINGS.filter(function (s) { return s.id === draft.setting; })[0];
+      commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "setting",
+        data: { setting: draft.setting, value: Number(draft.value), unit: spec.unit },
+        note: draft.note || "" }], "Setting change logged.");
+    });
+  }
+
+  function cadenceModal() {
+    var tank = activeTank();
+    draft = { when: nowLocal() };
+    CADENCE.forEach(function (c) { draft[c.key] = cadenceOf(tank.id, c.key, c.def); });
+
+    openModal("Intervals", tank.name + " · when things get flagged", function (form) {
+      CADENCE.forEach(function (c) {
+        form.appendChild(sliderField(c.label, 1, 60, 1, draft[c.key],
+          function (v) { return v + "d"; },
+          function (v) { draft[c.key] = v; }));
+      });
+      var n = el("div", "caution");
+      n.innerHTML = "<strong>Filter, pipes and reactor aren't intervals.</strong> They're anchored to the first week of their months, so there's nothing to set.";
+      form.appendChild(n);
+    }, function () {
+      var ts = new Date().toISOString();
+      var out = [];
+      CADENCE.forEach(function (c) {
+        if (draft[c.key] !== cadenceOf(tank.id, c.key, c.def)) {
+          out.push({ id: uid(), ts: ts, tank: tank.id, kind: "setting",
+            data: { setting: c.key, value: draft[c.key], unit: "days" }, note: "" });
+        }
+      });
+      if (out.length) commit(out, "Intervals updated.");
+      else { closeModal(); toast("Nothing changed."); }
+    }, "Save intervals");
+  }
+
+  function rowsModal() {
+    openModal("Sheet rows", "One row per reading. Append-only.", function (form) {
+      var p = el("p", "mathline", "Adding a metric later adds rows, not columns — no migration.");
+      form.appendChild(p);
+
+      var rows = [];
+      state.entries.slice()
+        .sort(function (a, b) { return new Date(b.ts) - new Date(a.ts); })
+        .slice(0, 14)
+        .forEach(function (e) { rows = rows.concat(toRows(e)); });
+
+      var sc = el("div", "scroller");
+      var table = el("table", "rows");
+      var thead = el("thead"), htr = el("tr");
+      ["Timestamp", "Tank", "Event Type", "Metric", "Value", "Unit", "Note"].forEach(function (h) {
+        htr.appendChild(el("th", null, h));
+      });
+      thead.appendChild(htr);
+      table.appendChild(thead);
+      var tb = el("tbody");
+      rows.forEach(function (r) {
+        var tr = el("tr");
+        [new Date(r.ts).toISOString().slice(0, 16).replace("T", " "), r.tank, r.type, r.metric, String(r.value), r.unit, r.note]
+          .forEach(function (v) { tr.appendChild(el("td", null, v)); });
+        tb.appendChild(tr);
+      });
+      table.appendChild(tb);
+      sc.appendChild(table);
+      form.appendChild(sc);
+    }, closeModal, "Close", true);
+  }
+
+  function addTank() {
+    draft = { name: "" };
+    openModal("Add a tank", "It'll show up in the switcher.", function (form) {
+      var f = el("div", "field");
+      var l = el("label", null, "Name");
+      l.setAttribute("for", "tn");
+      f.appendChild(l);
+      var i = document.createElement("input");
+      i.type = "text"; i.id = "tn"; i.placeholder = "Tank 3";
+      i.oninput = function () { draft.name = i.value; };
+      f.appendChild(i);
+      form.appendChild(f);
+    }, function () {
+      var name = (draft.name || "").trim();
+      if (!name) { toast("Give it a name."); return; }
+      var id = "t" + Date.now().toString(36).slice(-5);
+      state.tanks.push({ id: id, name: name, status: "running" });
+      state.active = id;
+      persistUI();
+      commit([{ id: uid(), ts: new Date().toISOString(), tank: id, kind: "setting",
+        data: { setting: "tank_name", value: name, unit: "" }, note: "" }], name + " added.");
+    }, "Add tank");
+  }
+
+  /* ================= boot ================= */
+
+  /* ================= sign-in gate ================= */
+
+  function showGate(message) {
+    var app = document.getElementById("app");
+    app.innerHTML = "";
+    var card = el("div", "gate");
+    card.appendChild(el("h2", null, "Aquascape Log"));
+    card.appendChild(el("p", null, "Sign in with the Google account that owns the sheet."));
+    var btn = el("div", "btn");
+    btn.id = "gbtn";
+    card.appendChild(btn);
+    if (message) card.appendChild(el("p", "err", message));
+    app.appendChild(card);
+    document.getElementById("tabs").innerHTML = "";
+    initGis();
+  }
+
+  function initGis() {
+    if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+      return setTimeout(initGis, 150);
+    }
+    window.google.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback: function (resp) {
+        idToken = resp.credential;
+        try { sessionStorage.setItem(TOKEN_KEY, idToken); } catch (err) {}
+        start();
+      }
+    });
+    var host = document.getElementById("gbtn");
+    if (host) {
+      window.google.accounts.id.renderButton(host, {
+        theme: "outline", size: "large", shape: "pill", text: "signin_with"
+      });
+    }
+  }
+
+  function showError(err) {
+    var app = document.getElementById("app");
+    app.innerHTML = "";
+    var card = el("div", "paused-card");
+    card.appendChild(el("h2", null, "Can't reach the sheet"));
+    card.appendChild(el("p", null, String(err && err.message ? err.message : err)));
+    var b = el("button", "primary", "Try again");
+    b.style.marginTop = "18px";
+    b.onclick = function () { location.reload(); };
+    card.appendChild(b);
+    app.appendChild(card);
+  }
+
+  function start() {
+    if (!idToken) {
+      try { idToken = sessionStorage.getItem(TOKEN_KEY); } catch (err) { idToken = null; }
+    }
+    if (!idToken) return showGate();
+
+    load().then(function (s) {
+      state = s;
+      render();
+      flushQueue();
+    }).catch(function (err) {
+      // ID tokens last an hour, so expiry is routine rather than a failure.
+      if (String(err.message) === "auth" || /token|signed in|allowed/.test(String(err.message))) {
+        idToken = null;
+        try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
+        return showGate(String(err.message) === "auth" ? "" : err.message);
+      }
+      showError(err);
+    });
+  }
+
+  start();
+
+})();
+</script>
