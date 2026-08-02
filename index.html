@@ -287,7 +287,6 @@
   .toggle:last-of-type { border-bottom: 1px solid var(--line); }
   .toggle input { width: 18px; height: 18px; accent-color: var(--good); margin: 0; }
   .toggle .hint { display: block; font-family: var(--mono); font-size: 11px; color: var(--muted); }
-  .slider-nested { padding: 0 0 var(--s2) var(--s5); }
   .winrow { display: flex; justify-content: space-between; gap: var(--s3); padding: 5px 0; font-size: 14px; }
   .winrow span:last-child { font-family: var(--mono); font-size: 12px; color: var(--muted); }
   .locked { display: flex; align-items: center; justify-content: space-between; margin-top: var(--s2); }
@@ -331,6 +330,53 @@
   .toast[hidden] { display: none; }
   .toast .undo { background: none; border: none; padding: 0; margin-left: 14px; color: #A8D8BE; font-weight: 500; text-decoration: underline; }
 
+  /* ===================== wide screens ===================== */
+  /* One layout, relaxed. No separate iPad build — divergent layouts mean
+     every change needs testing twice and bugs appear on the device you
+     aren't holding. */
+  @media (min-width: 760px) {
+    .app { max-width: 900px; padding: var(--s5) var(--s5) 120px; }
+
+    .tab-log,
+    .tab-reference,
+    .tab-home {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--s3);
+      align-items: start;
+    }
+
+    /* full-width elements inside those grids */
+    .tab-log > .pagehead,
+    .tab-reference > .pagehead,
+    .tab-reference > .sheetlink,
+    .tab-home > .pagehead,
+    .tab-home > .backlink,
+    .tab-home > .grouplabel,
+    .tab-home > .openbanner,
+    .view-tank > .waterfig { grid-column: 1 / -1; }
+
+    /* history stays one column — long text wants a measure */
+    .tab-history { max-width: 640px; }
+
+    /* a bottom sheet on a 13-inch screen is mostly dimmed empty space */
+    .scrim { align-items: center; }
+    .modal {
+      border-radius: 20px;
+      max-width: 540px;
+      max-height: 82vh;
+      animation: pop .2s cubic-bezier(.2,.8,.3,1);
+    }
+    @keyframes pop { from { transform: scale(.97); opacity: .4; } }
+
+    .tabbar .inner { max-width: 560px; }
+    .picker .blob { max-width: 72px; }
+  }
+
+  @media (min-width: 760px) and (prefers-reduced-motion: reduce) {
+    .modal { animation: none; }
+  }
+
   .loading { font-family: var(--mono); color: var(--muted); font-size: 12px; padding: var(--s5) 0; }
   .gate { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); padding: var(--s5) var(--s4); text-align: center; margin-top: var(--s5); }
   .gate h2 { font-family: var(--serif); font-weight: 500; font-size: 28px; margin: 0 0 var(--s1); }
@@ -363,7 +409,7 @@
 
   // Bump on every push. Shown in Reference so "which build are you on" is a
   // question with an answer instead of a guess.
-  var BUILD = "2026-08-02o";
+  var BUILD = "2026-08-02r";
 
   var UI_KEY = "aqualog:ui";
   var QUEUE_KEY = "aqualog:queue";
@@ -429,19 +475,6 @@
     { key: "cadence_checker_fluid", label: "Checker fluid", def: 14 }
   ];
 
-  var ICONS = {
-    waves: [{ d: "M3 7q2.6-2.4 5.2 0t5.2 0 5.2 0" }, { d: "M3 12q2.6-2.4 5.2 0t5.2 0 5.2 0" }, { d: "M3 17q2.6-2.4 5.2 0t5.2 0 5.2 0" }],
-    vial: [{ d: "M9.5 3v11.4a2.75 2.75 0 0 0 5.5 0V3" }, { d: "M8.3 3h7.9" }, { d: "M9.5 11.2h5.5" }],
-    checker: [{ c: [12, 12, 8.5] }, { d: "M12 8.2c1.7 2.1 2.7 3.3 2.7 4.5a2.7 2.7 0 0 1-5.4 0c0-1.2 1-2.4 2.7-4.5z" }],
-    eye: [{ d: "M2.8 12S6.4 6.2 12 6.2 21.2 12 21.2 12 17.6 17.8 12 17.8 2.8 12 2.8 12z" }, { c: [12, 12, 2.6] }],
-    sparkle: [{ d: "M9.5 3.2l1.5 4.3 4.3 1.5-4.3 1.5-1.5 4.3-1.5-4.3L3.7 9l4.3-1.5z" }, { d: "M17.5 14l.85 2.35 2.35.85-2.35.85-.85 2.35-.85-2.35-2.35-.85 2.35-.85z" }],
-    fish: [{ e: [10.5, 12, 6.8, 4.4] }, { d: "M17.3 12c1.5-1.7 2.7-2.5 3.7-2.5v5c-1 0-2.2-.8-3.7-2.5z" }, { c: [7.2, 10.8, 0.9, true] }],
-    leaf: [{ d: "M5 19.5C5 10.5 11 4 20.2 4c0 9.2-6.2 15.5-15.2 15.5z" }, { d: "M9.2 15C10.8 12.2 14 10 17.4 9" }],
-    sliders: [{ d: "M3 8.5h11" }, { d: "M18.5 8.5H21" }, { d: "M3 15.5h4" }, { d: "M11.5 15.5H21" }, { c: [16.2, 8.5, 2.3] }, { c: [9.2, 15.5, 2.3] }],
-    drop: [{ d: "M12 3.4c3.3 4 5.3 6.6 5.3 8.9a5.3 5.3 0 0 1-10.6 0c0-2.3 2-4.9 5.3-8.9z" }],
-    glass: [{ d: "M5 4h14v11H5z" }, { d: "M8.5 19.5h7" }, { d: "M12 15v4.5" }, { d: "M8 7.5l3 3" }],
-    scissors: [{ c: [6, 18, 2.6] }, { c: [18, 18, 2.6] }, { d: "M7.8 16.2L19 4" }, { d: "M16.2 16.2L5 4" }]
-  };
 
   /* ================= plant lookup ================= */
 
@@ -650,6 +683,18 @@
    * it. Applying that on read means duplicates from any past naming just stop
    * existing — no merge, no migration, nothing to run.
    */
+  /**
+   * Species names are stored singular, always. "ember_tetras" and "ember_tetra"
+   * are the same fish, so this collapses them on read the way plants are
+   * collapsed through the lookup table — no merge to run, nothing to deploy
+   * server-side, and no way for the two to drift apart again.
+   */
+  function canonSpecies(key) {
+    if (!key) return key;
+    var single = singularize(String(key).replace(/_/g, " "));
+    return single.trim().toLowerCase().replace(/\s+/g, "_");
+  }
+
   var canonCache = {};
   function canonPlant(key) {
     if (!key) return key;
@@ -692,7 +737,7 @@
       var i = m.indexOf("_");
       e.data.event = m.slice(0, i);
       var sp = m.slice(i + 1);
-      e.data.species = e.kind === "plant" ? canonPlant(sp) : sp;
+      e.data.species = e.kind === "plant" ? canonPlant(sp) : canonSpecies(sp);
       e.data.count = numish(v);
     } else if (e.kind === "setting") {
       if (!m) return;                    // a stray row with no metric name
@@ -817,7 +862,6 @@
     if (!b) return "not set";
     return b.count + " per " + b.seconds + (b.seconds === 1 ? " sec" : " secs");
   }
-  function bubbleRate(b) { return b ? b.count / b.seconds : null; }
 
   // Light is a value on a scale — 3 of 6 on a Twinstar, or 40 of 100 on a
   // percentage fixture. Stored as two rows so the scale travels with the value.
@@ -1181,6 +1225,9 @@
   function render() {
     var app = $("#app");
     app.innerHTML = "";
+    // Lets the wide-screen rules target each tab without a second layout.
+    app.className = "app tab-" + state.tab +
+      (state.tab === "home" && state.view === "tank" ? " view-tank" : "");
 
     if (!AUTH_ON) {
       app.appendChild(el("div", "openbanner", "Sign-in is off \u2014 anyone with this URL can write."));
@@ -2144,26 +2191,6 @@
     return i;
   }
 
-  function hourSelect(id, value, onChange) {
-    var sel = document.createElement("select");
-    sel.id = id;
-    var blank = document.createElement("option");
-    blank.value = "";
-    blank.textContent = "—";
-    sel.appendChild(blank);
-    for (var h = 0; h < 24; h++) {
-      var hh = (h < 10 ? "0" : "") + h + ":00";
-      var o = document.createElement("option");
-      o.value = hh;
-      o.textContent = hh;
-      if (value === hh) o.selected = true;
-      sel.appendChild(o);
-    }
-    sel.value = value || "";
-    sel.onchange = function () { onChange(sel.value); };
-    return sel;
-  }
-
   function bubbleFields() {
     var g = el("div", "timepair");
     g.appendChild(el("span", "lab", "Bubble rate"));
@@ -2724,7 +2751,7 @@
         toast("Saving as \u201c" + single + "\u201d — singular keeps counts together.");
       }
       commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "livestock",
-        data: { event: draft.event, species: slug(draft.species), count: draft.count },
+        data: { event: draft.event, species: canonSpecies(slug(draft.species)), count: draft.count },
         note: draft.note || "" }], "Livestock logged.");
     });
   }
