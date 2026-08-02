@@ -363,7 +363,7 @@
 
   // Bump on every push. Shown in Reference so "which build are you on" is a
   // question with an answer instead of a guess.
-  var BUILD = "2026-08-02j";
+  var BUILD = "2026-08-02k";
 
   var UI_KEY = "aqualog:ui";
   var QUEUE_KEY = "aqualog:queue";
@@ -1797,6 +1797,15 @@
       hist.style.marginTop = "12px";
       hist.onclick = function () { rosterHistoryModal(tank, "livestock", "Livestock history"); };
       b2.card.appendChild(hist);
+
+      // rosterOf keeps zero and negative species, so a mismatched spelling
+      // shows up here even though the widget above hides it.
+      if (rosterOf(tank.id, "livestock").length > 1) {
+        var mg2 = el("button", "sheetlink", "Merge duplicates");
+        mg2.style.marginLeft = "16px";
+        mg2.onclick = function () { mergeSpeciesModal(tank, "livestock"); };
+        b2.card.appendChild(mg2);
+      }
     } else {
       b2.card.appendChild(el("p", "empty", "Fills in as you log additions and losses."));
     }
@@ -1812,7 +1821,7 @@
       if (pr.length > 1) {
         var mg = el("button", "sheetlink", "Merge duplicates");
         mg.style.marginTop = "12px";
-        mg.onclick = function () { renamePlantModal(tank); };
+        mg.onclick = function () { mergeSpeciesModal(tank, "plant"); };
         b3.card.appendChild(mg);
       }
     } else {
@@ -2621,14 +2630,15 @@
 
   /* ---- merging species that were entered under different names ---- */
 
-  function renamePlantModal(tank) {
-    var species = rosterOf(tank.id, "plant");
+  function mergeSpeciesModal(tank, kind) {
+    var label = kind === "plant" ? plantName : pretty;
+    var species = rosterOf(tank.id, kind);
     draft = { from: species.length ? species[0].species : "", raw: "", matched: null };
 
     openModal("Merge plants", "Point one species at another", function (form, refresh) {
       var f1 = labField("Rename this");
       f1.appendChild(chipRow(
-        species.map(function (p) { return { id: p.species, label: plantName(p.species) }; }),
+        species.map(function (p) { return { id: p.species, label: label(p.species) + " · " + p.count }; }),
         [draft.from], function (id) { draft.from = id; refresh(); }));
       form.appendChild(f1);
 
@@ -2636,41 +2646,43 @@
       var others = species.filter(function (p) { return p.species !== draft.from; });
       if (others.length) {
         f2.appendChild(chipRow(
-          others.map(function (p) { return { id: p.species, label: plantName(p.species) }; }),
+          others.map(function (p) { return { id: p.species, label: label(p.species) + " · " + p.count }; }),
           draft.matched ? [draft.matched.key] : [],
-          function (id) { draft.matched = { key: id, name: plantName(id) }; draft.raw = ""; refresh(); }));
+          function (id) { draft.matched = { key: id, name: label(id) }; draft.raw = ""; refresh(); }));
       }
       form.appendChild(f2);
 
-      var f3 = el("div", "field");
-      var l3 = el("label", null, "Or paste the correct name");
-      l3.setAttribute("for", "rsp");
-      f3.appendChild(l3);
-      var i3 = document.createElement("input");
-      i3.type = "text";
-      i3.id = "rsp";
-      i3.value = draft.raw;
-      i3.oninput = function () {
-        draft.raw = i3.value;
-        draft.matched = i3.value.trim() ? matchPlant(i3.value) : null;
-        var out = document.getElementById("rmatch");
-        if (out) out.textContent = matchText(draft.matched);
-      };
-      f3.appendChild(i3);
-      var m = el("p", "mathline", matchText(draft.matched));
-      m.id = "rmatch";
-      f3.appendChild(m);
-      form.appendChild(f3);
+      if (kind === "plant") {
+        var f3 = el("div", "field");
+        var l3 = el("label", null, "Or paste the correct name");
+        l3.setAttribute("for", "rsp");
+        f3.appendChild(l3);
+        var i3 = document.createElement("input");
+        i3.type = "text";
+        i3.id = "rsp";
+        i3.value = draft.raw;
+        i3.oninput = function () {
+          draft.raw = i3.value;
+          draft.matched = i3.value.trim() ? matchPlant(i3.value) : null;
+          var out = document.getElementById("rmatch");
+          if (out) out.textContent = matchText(draft.matched);
+        };
+        f3.appendChild(i3);
+        var m = el("p", "mathline", matchText(draft.matched));
+        m.id = "rmatch";
+        f3.appendChild(m);
+        form.appendChild(f3);
+      }
 
       var c = el("div", "caution");
-      c.innerHTML = "<strong>Every entry moves.</strong> Additions, removals and trims for the old name are rewritten, so counts and trim history combine.";
+      c.innerHTML = "<strong>Every entry moves.</strong> Every logged event under the old name is rewritten, so counts add up and losses finally cancel their additions.";
       form.appendChild(c);
     }, function () {
       if (!draft.from || !draft.matched) { toast("Pick both sides."); return; }
       if (draft.from === draft.matched.key) { toast("Those are the same plant."); return; }
 
       var moving = tankEntries(tank.id).filter(function (e) {
-        return e.kind === "plant" && e.data.species === draft.from;
+        return e.kind === kind && e.data.species === draft.from;
       });
       if (!moving.length) { closeModal(); toast("Nothing to move."); return; }
 
