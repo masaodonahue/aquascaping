@@ -363,7 +363,7 @@
 
   // Bump on every push. Shown in Reference so "which build are you on" is a
   // question with an answer instead of a guess.
-  var BUILD = "2026-08-02n";
+  var BUILD = "2026-08-02o";
 
   var UI_KEY = "aqualog:ui";
   var QUEUE_KEY = "aqualog:queue";
@@ -542,7 +542,9 @@
   
     var best = null;
     PLANTS.forEach(function (p) {
-      var names = [cleanPlantName(p.name)].concat(p.alias);
+      // The key itself counts as a name. Without it, "rotala rotundifolia hra"
+      // loses to the shorter "rotala rotundifolia" and lands on the wrong plant.
+      var names = [cleanPlantName(p.name), p.key.replace(/_/g, " ")].concat(p.alias);
       names.forEach(function (n) {
         if (!n) return;
         if (t.indexOf(n) !== -1) {
@@ -640,6 +642,24 @@
 
   /* ---- rows back into entries ---- */
 
+  /**
+   * Collapse however a plant was named into its canonical species key.
+   *
+   * "ic030_ada_tissue_culture_plant_-_staurogyne_repens" and
+   * "staurogyne_repens" are the same plant, and the lookup table already knows
+   * it. Applying that on read means duplicates from any past naming just stop
+   * existing — no merge, no migration, nothing to run.
+   */
+  var canonCache = {};
+  function canonPlant(key) {
+    if (!key) return key;
+    if (canonCache[key] !== undefined) return canonCache[key];
+    var m = matchPlant(String(key).replace(/_/g, " "));
+    var out = (m && (m.confidence === "exact" || m.confidence === "guess")) ? m.key : key;
+    canonCache[key] = out;
+    return out;
+  }
+
   function numish(v) {
     if (v === "" || v === null || v === undefined) return v;
     var n = Number(v);
@@ -671,7 +691,8 @@
     } else if (e.kind === "livestock" || e.kind === "plant") {
       var i = m.indexOf("_");
       e.data.event = m.slice(0, i);
-      e.data.species = m.slice(i + 1);
+      var sp = m.slice(i + 1);
+      e.data.species = e.kind === "plant" ? canonPlant(sp) : sp;
       e.data.count = numish(v);
     } else if (e.kind === "setting") {
       if (!m) return;                    // a stray row with no metric name
@@ -2763,7 +2784,7 @@
     }, function () {
       if (!draft.species) { toast("Pick or paste a plant."); return; }
       commit([{ id: uid(), ts: fromLocal(draft.when), tank: state.active, kind: "plant",
-        data: { event: draft.event, species: draft.species },
+        data: { event: draft.event, species: canonPlant(draft.species) },
         note: draft.note || "" }], "Plant logged.");
     });
   }
