@@ -222,7 +222,7 @@
   .scrim[hidden] { display: none; }
   .modal {
     background: var(--ground); border-radius: 22px 22px 0 0; width: 100%; max-width: 440px;
-    max-height: 90vh; overflow-y: auto; padding: var(--s4) var(--s4) var(--s5);
+    max-height: 90vh; overflow-x: hidden; overflow-y: auto; padding: var(--s4) var(--s4) var(--s5);
     animation: rise .24s cubic-bezier(.2,.8,.3,1);
   }
   @keyframes rise { from { transform: translateY(18px); opacity: .3; } }
@@ -236,7 +236,7 @@
     text-transform: uppercase; color: var(--muted); margin-bottom: var(--s2);
   }
   input[type=text], input[type=number], input[type=time], input[type=datetime-local], select, textarea {
-    width: 100%; background: var(--surface); border: 1px solid var(--line);
+    width: 100%; min-width: 0; background: var(--surface); border: 1px solid var(--line);
     border-radius: var(--r-sm); color: var(--ink);
     font-family: var(--sans); font-size: 15px; padding: 12px 14px;
   }
@@ -330,6 +330,15 @@
   .toast[hidden] { display: none; }
   .toast .undo { background: none; border: none; padding: 0; margin-left: 14px; color: #A8D8BE; font-weight: 500; text-decoration: underline; }
 
+  /* add-a-tank footer action — understated, sits below the tank's info */
+  .addtank { display: flex; justify-content: center; margin: var(--s4) 0 var(--s2); }
+  .addtank button {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: 10px 20px; font-size: 14px; color: var(--body);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .addtank button:hover { border-color: #D9D6CD; color: var(--ink); }
+
   /* ===================== wide screens ===================== */
   /* One layout, relaxed. No separate iPad build — divergent layouts mean
      every change needs testing twice and bugs appear on the device you
@@ -338,7 +347,6 @@
     .app { max-width: 900px; padding: var(--s5) var(--s5) 120px; }
 
     .tab-log,
-    .tab-reference,
     .tab-home {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -348,13 +356,20 @@
 
     /* full-width elements inside those grids */
     .tab-log > .pagehead,
-    .tab-reference > .pagehead,
-    .tab-reference > .sheetlink,
     .tab-home > .pagehead,
     .tab-home > .backlink,
     .tab-home > .grouplabel,
     .tab-home > .openbanner,
     .view-tank > .waterfig { grid-column: 1 / -1; }
+
+    /* Reference is a stack of cards with very different heights. A rigid
+       2-col grid leaves ragged gaps; balanced columns pack them tidily and
+       keep each card whole. */
+    .tab-reference { column-count: 2; column-gap: var(--s3); }
+    .tab-reference > .block { break-inside: avoid; }
+    .tab-reference > .pagehead,
+    .tab-reference > .sheetlink,
+    .tab-reference > .addtank { column-span: all; }
 
     /* history stays one column — long text wants a measure */
     .tab-history { max-width: 640px; }
@@ -409,7 +424,7 @@
 
   // Bump on every push. Shown in Reference so "which build are you on" is a
   // question with an answer instead of a guess.
-  var BUILD = "2026-08-02r";
+  var BUILD = "2026-08-02s";
 
   var UI_KEY = "aqualog:ui";
   var QUEUE_KEY = "aqualog:queue";
@@ -1929,12 +1944,6 @@
     edit.onclick = function () { tankModal(tank); };
     app.appendChild(pageHead("Reference", tank.name, edit));
 
-    var addRow = el("div", "block");
-    var addBtn = el("button", "sheetlink", "+ Add a tank");
-    addBtn.onclick = addTank;
-    addRow.appendChild(addBtn);
-    app.appendChild(addRow);
-
     var sch = schedule(tank.id);
     var b1 = refBlock("Schedule");
     var g = el("div", "grid2");
@@ -2031,6 +2040,12 @@
       b6.card.appendChild(w);
     });
     app.appendChild(b6);
+
+    var addWrap = el("div", "addtank");
+    var addBtn = el("button", null, "+ Add a tank");
+    addBtn.onclick = addTank;
+    addWrap.appendChild(addBtn);
+    app.appendChild(addWrap);
 
     var diag = el("button", "sheetlink", "Build " + BUILD + " · diagnostics");
     diag.style.marginTop = "8px";
