@@ -9,354 +9,305 @@
      Leave as-is to run without sign-in.
      To turn sign-in on, paste your Google OAuth client ID here.
      ============================================================ */
-  window.CLIENT_ID = "536414923855-5p0o3il6uc69pkaa820kk0uhkeugap8c.apps.googleusercontent.com";
+  window.CLIENT_ID = "";
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --ground: #F3F8F7;
+    --ground: #F6F5F1;
     --surface: #FFFFFF;
-    --surface-2: #E9F2F0;
-    --line: #E1ECE9;
-    --text: #17312C;
-    --muted: #7B948F;
-    --good: #4FA97F;
-    --low: #6FA8CE;
-    --warn: #E8A33C;
-    --aqua: #C7E7E0;
-    --aqua-late: #FAE3BE;
+    --line: #E7E5DE;
+    --line-soft: #EFEDE7;
 
-    --display: "Zen Maru Gothic", ui-rounded, "Hiragino Maru Gothic ProN", sans-serif;
-    --ui: "Zen Kaku Gothic New", ui-sans-serif, system-ui, sans-serif;
+    --ink: #16181A;
+    --body: #3A3F40;
+    --muted: #9A9992;
+
+    --good: #4A8B6A;
+    --good-tint: #E8F1EA;
+    --warn: #B5813A;
+    --warn-tint: #FAF0DE;
+
+    --serif: "Newsreader", Georgia, serif;
+    --sans: "Zen Kaku Gothic New", ui-sans-serif, system-ui, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 
-    --pad: 20px;
-    --r: 14px;
-    --r-sm: 10px;
-    --shadow: 0 1px 2px rgba(23,49,44,.04), 0 6px 18px rgba(23,49,44,.05);
-    --shadow-lift: 0 3px 6px rgba(23,49,44,.05), 0 14px 30px rgba(23,49,44,.09);
+    --s1: 4px; --s2: 8px; --s3: 16px; --s4: 24px; --s5: 32px;
+    --r: 16px; --r-sm: 10px;
+    --shadow: 0 1px 2px rgba(22,24,26,.03), 0 1px 12px rgba(22,24,26,.04);
   }
 
   * { box-sizing: border-box; }
   html, body {
-    margin: 0; background: var(--ground); color: var(--text);
-    font-family: var(--ui); font-size: 15px; line-height: 1.55;
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
   button { font: inherit; color: inherit; cursor: pointer; }
   :focus-visible { outline: 2px solid var(--good); outline-offset: 3px; border-radius: 3px; }
 
-  .app { max-width: 440px; margin: 0 auto; padding: 30px var(--pad) 130px; }
+  .app { max-width: 440px; margin: 0 auto; padding: var(--s5) var(--s4) 120px; }
 
-  .eyebrow {
-    font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
-    color: var(--muted); margin: 0 0 14px;
+  /* page head */
+  .pagehead { margin-bottom: var(--s4); }
+  .pagehead h1 {
+    font-family: var(--serif); font-weight: 500; font-size: 34px;
+    letter-spacing: -.01em; margin: 0; color: var(--ink);
   }
-  .tanks { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
-  .tanks button {
-    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-    padding: 7px 16px; font-size: 13px; color: var(--muted);
-    transition: color .15s, border-color .15s, background-color .15s;
+  .pagehead .sub { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: var(--s1); }
+  .pagehead .top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s3); }
+  .datechip {
+    font-family: var(--mono); font-size: 12px; color: var(--body);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 14px; background: var(--surface); white-space: nowrap;
   }
-  .tanks button:hover { color: var(--text); }
-  .tanks button[aria-pressed="true"] { color: #fff; background: var(--text); border-color: var(--text); }
-  .tanks .add { padding: 7px 13px; }
-  .tanks .paused::after {
-    content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 50%;
-    background: var(--low); margin-left: 8px; vertical-align: middle;
+  .backlink {
+    background: none; border: none; padding: 0 0 var(--s3);
+    font-size: 14px; color: var(--good); display: flex; align-items: center; gap: 6px;
   }
 
-  /* water card */
-  .meniscus {
-    position: relative; overflow: hidden;
+  /* group label */
+  .grouplabel {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted);
+    margin: var(--s4) 0 var(--s2);
+  }
+  .grouplabel:first-of-type { margin-top: 0; }
+
+  /* list rows */
+  .rowcard {
+    width: 100%; text-align: left;
     background: var(--surface); border: 1px solid var(--line);
     border-radius: var(--r); box-shadow: var(--shadow);
-    padding: 26px 22px 20px; margin-bottom: 12px; min-height: 172px;
+    padding: var(--s3); margin-bottom: var(--s2);
+    display: flex; align-items: center; gap: var(--s3);
+    position: relative; overflow: hidden;
+    transition: border-color .15s;
   }
-  .water {
-    position: absolute; left: 0; right: 0; bottom: 0; background: var(--aqua);
-    transition: height .6s cubic-bezier(.4,0,.2,1); pointer-events: none;
+  .rowcard:hover { border-color: #D9D6CD; }
+  .rowcard.attention { background: var(--warn-tint); border-color: #EBDCC0; }
+
+  .icontile {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 12px;
+    background: var(--good-tint); color: var(--good);
+    display: grid; place-items: center;
   }
-  .water.late { background: var(--aqua-late); }
-  .wave { position: absolute; top: -9px; left: 0; width: 200%; height: 10px; display: block; animation: drift 11s linear infinite; }
+  .icontile svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  .rowcard.attention .icontile { background: #F4E8D2; color: var(--warn); }
+
+  .rowbody { flex: 1; min-width: 0; }
+  .rowbody .name { font-size: 16px; font-weight: 500; color: var(--ink); }
+  .rowbody .latin { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--muted); }
+  .rowbody .meta { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .rowdesc { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .pills { display: flex; gap: 6px; flex: 0 0 auto; }
+  .statuspill {
+    font-family: var(--mono); font-size: 11px; padding: 4px 9px; border-radius: 999px;
+    background: var(--good-tint); color: var(--good); white-space: nowrap;
+  }
+  .statuspill.late { background: #F4E8D2; color: var(--warn); }
+
+  .meter { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--line-soft); }
+  .meter i { display: block; height: 100%; background: var(--good); }
+  .meter i.late { background: var(--warn); }
+
+  /* detail blocks */
+  .block { margin-bottom: var(--s4); }
+  .block h2 {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); font-weight: 400;
+    margin: 0 0 var(--s2);
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow); padding: var(--s3) var(--s4);
+  }
+  .kv { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); padding: 7px 0; font-size: 14px; }
+  .kv + .kv { border-top: 1px solid var(--line-soft); }
+  .kv span:last-child { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .kv.late span:last-child { color: var(--warn); }
+  .empty { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3) var(--s3); }
+  .grid2 .lab {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px;
+  }
+  .grid2 .val { font-size: 14px; color: var(--ink); }
+
+  /* the water figure — small, inside the tank view */
+  .waterfig {
+    position: relative; overflow: hidden; height: 96px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r); box-shadow: var(--shadow);
+    padding: var(--s3) var(--s4); display: flex; align-items: center; gap: var(--s3);
+  }
+  .waterfig .num { font-family: var(--serif); font-size: 42px; line-height: 1; font-weight: 500; position: relative; }
+  .waterfig .cap { font-family: var(--mono); font-size: 12px; color: var(--muted); position: relative; }
+  .water { position: absolute; left: 0; right: 0; bottom: 0; background: #DCEAE2; transition: height .6s cubic-bezier(.4,0,.2,1); }
+  .water.late { background: #F5E7CE; }
+  .wave { position: absolute; top: -8px; left: 0; width: 200%; height: 9px; display: block; animation: drift 12s linear infinite; }
   @keyframes drift { to { transform: translateX(-50%); } }
-  .meniscus > *:not(.water) { position: relative; z-index: 1; }
-  .meniscus .count { font-family: var(--display); font-size: 78px; line-height: .92; font-weight: 500; display: block; margin-bottom: 4px; }
-  .meniscus .caption { font-size: 13px; color: var(--muted); margin-bottom: 26px; }
-  .fill-meta { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); }
-
-  .paused-card {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
-    box-shadow: var(--shadow); padding: 28px 22px; margin-bottom: 12px;
-  }
-  .paused-card h2 { font-family: var(--display); font-weight: 500; font-size: 22px; margin: 0 0 6px; }
-  .paused-card p { color: var(--muted); font-size: 13px; margin: 0; }
-
-  /* tiles */
-  .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 22px; }
-  .tile {
-    border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow);
-    background: var(--surface); padding: 20px 14px 18px;
-    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px;
-    transition: transform .16s, box-shadow .16s;
-  }
-  .tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
-  .tile svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  .tile strong { display: block; font-weight: 500; font-size: 15px; line-height: 1.2; }
-  .tile span { font-size: 11.5px; line-height: 1.3; display: block; margin-top: 3px; opacity: .72; }
-  .tile.hero { border: none; padding: 26px 14px 22px; color: #fff; }
-  .tile.hero svg { width: 42px; height: 42px; stroke-width: 1.4; }
-  .tile.hero strong { font-size: 17px; }
-  .tile .puck { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; }
-
-  /* due */
-  .due {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
-    box-shadow: var(--shadow); padding: 17px 22px 19px; margin-bottom: 10px;
-  }
-  .due h3 {
-    font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
-    color: var(--muted); margin: 0 0 12px; font-weight: 500;
-  }
-  .due ul { list-style: none; margin: 0; padding: 0; }
-  .due li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 5px 0; font-size: 14px; }
-  .due li span:last-child { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
-  .due li.late span:last-child { color: var(--warn); }
-  .due .clear { color: var(--muted); font-size: 14px; margin: 0; }
 
   /* history */
-  .search { display: flex; gap: 8px; margin-bottom: 10px; }
-  .search input {
-    flex: 1; background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-    padding: 11px 16px; font-family: var(--ui); font-size: 14px; color: var(--text);
+  .searchbar { margin-bottom: var(--s2); }
+  .searchbar input {
+    width: 100%; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 999px; padding: 11px 18px;
+    font-family: var(--sans); font-size: 14px; color: var(--ink);
   }
-  .pills { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 18px; }
-  .pills button {
+  .pillrow { display: flex; gap: 6px; overflow-x: auto; padding-bottom: var(--s1); margin-bottom: var(--s3); }
+  .pillrow button {
     background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-    padding: 7px 14px; font-size: 12.5px; color: var(--muted); white-space: nowrap;
+    padding: 6px 14px; font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap;
   }
-  .pills button[aria-pressed="true"] { color: #fff; background: var(--text); border-color: var(--text); }
-  .history h3 { font-family: var(--mono); font-size: 11px; color: var(--muted); font-weight: 400; margin: 22px 0 6px; }
-  .history h3:first-child { margin-top: 0; }
-  .history ul {
-    list-style: none; margin: 0; padding: 4px 18px; background: var(--surface);
-    border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow);
-  }
-  .history li { padding: 11px 0; border-top: 1px solid var(--line); font-size: 14px; }
-  .history li:first-child { border-top: none; }
-  .history .note { color: var(--muted); font-size: 12px; }
-  .history .time { font-family: var(--mono); font-size: 10px; color: var(--muted); }
-  .history .clear { color: var(--muted); }
+  .pillrow button[aria-pressed="true"] { color: var(--good); border-color: var(--good); background: var(--good-tint); }
 
-  /* reference */
-  .ref {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
-    box-shadow: var(--shadow); padding: 17px 22px 19px; margin-bottom: 10px;
-  }
-  .ref h3 {
-    font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
-    color: var(--muted); margin: 0 0 12px; font-weight: 500;
-  }
-  .ref .row { display: flex; justify-content: space-between; gap: 14px; padding: 5px 0; font-size: 14px; }
-  .ref .row span:last-child { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; }
-  .ref .empty { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
-  .ref .scale-label { font-size: 12px; color: var(--muted); margin-bottom: 7px; }
-  .ref .swatch { pointer-events: none; }
-
-  /* recent */
-  .recent h3 {
-    font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
-    color: var(--muted); margin: 22px 0 10px; font-weight: 500;
-  }
-  .recent ol {
-    list-style: none; margin: 0; padding: 4px 18px; background: var(--surface);
-    border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow);
-  }
-  .recent li { display: flex; gap: 14px; padding: 11px 0; border-top: 1px solid var(--line); font-size: 13px; }
-  .recent li:first-child { border-top: none; }
-  .recent time { font-family: var(--mono); font-size: 11px; color: var(--muted); flex: 0 0 46px; padding-top: 2px; }
-  .recent .body { flex: 1; }
-  .recent .note { color: var(--muted); font-size: 12px; }
-  .recent .clear { color: var(--muted); font-size: 14px; }
+  .daylabel { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: var(--s4) 0 var(--s2); }
+  .daylabel:first-child { margin-top: 0; }
+  .entry { padding: 10px 0; font-size: 14px; }
+  .entry + .entry { border-top: 1px solid var(--line-soft); }
+  .entry .note { color: var(--muted); font-size: 13px; }
+  .entry .when { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
   .sheetlink {
-    background: none; border: none; padding: 0; color: var(--muted); font-size: 12px;
+    background: none; border: none; padding: 0; color: var(--muted);
+    font-family: var(--mono); font-size: 12px;
     text-decoration: underline; text-underline-offset: 3px;
   }
-  .sheetlink:hover { color: var(--text); }
+  .sheetlink:hover { color: var(--ink); }
 
   /* tab bar */
   .tabbar {
     position: fixed; bottom: 0; left: 0; right: 0;
-    background: rgba(255,255,255,.9);
+    background: rgba(246,245,241,.94);
     -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
     border-top: 1px solid var(--line); display: flex; justify-content: center; z-index: 40;
   }
   .tabbar .inner { display: flex; width: 100%; max-width: 440px; }
   .tabbar button {
     flex: 1; background: none; border: none;
-    padding: 15px 4px calc(15px + env(safe-area-inset-bottom, 0px));
-    font-size: 12px; color: var(--muted); position: relative; transition: color .15s;
+    padding: 10px 4px calc(12px + env(safe-area-inset-bottom, 0px));
+    font-size: 11px; color: var(--muted);
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
   }
-  .tabbar button:hover { color: var(--text); }
-  .tabbar button[aria-current="page"] { color: var(--text); font-weight: 500; }
-  .tabbar button[aria-current="page"]::before {
-    content: ""; position: absolute; top: -1px; left: 26%; right: 26%;
-    height: 2px; border-radius: 0 0 2px 2px; background: var(--good);
-  }
+  .tabbar svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  .tabbar button[aria-current="page"] { color: var(--good); }
 
-  /* modal */
+  /* modals */
   .scrim {
-    position: fixed; inset: 0; background: rgba(23,49,44,.34);
+    position: fixed; inset: 0; background: rgba(22,24,26,.3);
     -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
     display: flex; align-items: flex-end; justify-content: center; z-index: 50;
   }
   .scrim[hidden] { display: none; }
   .modal {
-    background: var(--ground); border-radius: 20px 20px 0 0; width: 100%; max-width: 440px;
-    max-height: 90vh; overflow-y: auto; padding: 24px var(--pad) 30px;
+    background: var(--ground); border-radius: 22px 22px 0 0; width: 100%; max-width: 440px;
+    max-height: 90vh; overflow-y: auto; padding: var(--s4) var(--s4) var(--s5);
     animation: rise .24s cubic-bezier(.2,.8,.3,1);
   }
   @keyframes rise { from { transform: translateY(18px); opacity: .3; } }
-  @media (prefers-reduced-motion: reduce) {
-    .modal { animation: none; }
-    .tile:hover { transform: none; }
-    .wave { animation: none; }
-    .water { transition: none; }
-  }
-  .modal h2 { font-family: var(--display); font-weight: 500; font-size: 25px; margin: 0 0 3px; }
-  .modal .sub { color: var(--muted); font-size: 12px; margin: 0 0 22px; font-family: var(--mono); }
+  @media (prefers-reduced-motion: reduce) { .modal { animation: none; } .wave { animation: none; } .water { transition: none; } }
+  .modal h2 { font-family: var(--serif); font-weight: 500; font-size: 28px; margin: 0 0 2px; }
+  .modal .sub { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0 0 var(--s4); }
 
-  .field { margin-bottom: 20px; }
+  .field { margin-bottom: var(--s4); }
   .field > label, .field > .lab {
-    display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 9px;
+    display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: var(--s2);
   }
   input[type=text], input[type=number], input[type=time], input[type=datetime-local], textarea {
     width: 100%; background: var(--surface); border: 1px solid var(--line);
-    border-radius: var(--r-sm); color: var(--text); font-family: var(--ui);
-    font-size: 15px; padding: 12px 13px;
+    border-radius: var(--r-sm); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; padding: 12px 14px;
   }
   textarea { min-height: 76px; resize: vertical; }
 
-  .slider-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
-  .slider-head .lab { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0; }
-  .slider-val { font-family: var(--display); font-size: 30px; font-weight: 500; line-height: 1.1; }
-  input[type=range] { width: 100%; accent-color: var(--good); background: transparent; margin: 4px 0 0; }
-  .slider-scale { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .slider-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--s1); }
+  .slider-head .lab { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  .slider-val { font-family: var(--serif); font-size: 28px; font-weight: 500; line-height: 1.1; }
+  input[type=range] { width: 100%; accent-color: var(--good); background: transparent; margin: var(--s1) 0 0; }
+  .slider-scale { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip {
     background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-    padding: 9px 15px; font-size: 13px; color: var(--muted);
+    padding: 9px 15px; font-size: 14px; color: var(--body);
     transition: color .14s, border-color .14s, background-color .14s;
   }
-  .chip:hover { color: var(--text); }
-  .chip[aria-pressed="true"] { color: #fff; background: var(--text); border-color: var(--text); }
-  .chip.flag[aria-pressed="true"] { background: var(--warn); border-color: var(--warn); color: #fff; }
+  .chip[aria-pressed="true"] { color: var(--good); border-color: var(--good); background: var(--good-tint); }
+  .chip.flag[aria-pressed="true"] { color: var(--warn); border-color: var(--warn); background: var(--warn-tint); }
 
-  /* three icon toggles in the water change flow */
-  .switches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 6px; }
+  .switches { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); margin-bottom: var(--s3); }
   .switch {
-    background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r);
-    padding: 15px 8px 13px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+    padding: var(--s3) var(--s2); display: flex; flex-direction: column; align-items: center; gap: var(--s2);
     color: var(--muted); transition: border-color .15s, color .15s, background-color .15s;
   }
-  .switch svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  .switch b { font-weight: 500; font-size: 12.5px; }
-  .switch[aria-pressed="true"] { color: var(--good); border-color: var(--good); background: #EDF7F2; }
+  .switch svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  .switch b { font-weight: 400; font-size: 13px; }
+  .switch[aria-pressed="true"] { color: var(--good); border-color: var(--good); background: var(--good-tint); }
 
-  .panel {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
-    padding: 16px 18px; margin-bottom: 20px;
-  }
-  .panel > .lab {
-    display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 10px;
-  }
-  .winrow { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 14px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s3) var(--s4); margin-bottom: var(--s4); }
+  .panel > .lab { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: var(--s2); }
+  .winrow { display: flex; justify-content: space-between; gap: var(--s3); padding: 5px 0; font-size: 14px; }
   .winrow span:last-child { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-  .locked { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
-  .locked em { font-style: normal; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
-
-  .mathline { font-family: var(--mono); font-size: 11px; color: var(--muted); margin: 6px 0 0; }
+  .locked { display: flex; align-items: center; justify-content: space-between; margin-top: var(--s2); }
+  .locked em { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .mathline { font-family: var(--mono); font-size: 11px; color: var(--muted); margin: var(--s2) 0 0; }
   .mathline.off { color: var(--warn); }
 
-  .swatches { display: flex; gap: 5px; }
-  .swatch {
-    flex: 1; aspect-ratio: 1 / 1.4; border: 2px solid transparent; border-radius: 8px;
-    position: relative; padding: 0; min-width: 0; transition: transform .14s;
-  }
-  .swatch:hover { transform: translateY(-2px); }
-  .swatch[aria-pressed="true"] { border-color: var(--text); }
-  .swatch span {
-    position: absolute; left: 0; right: 0; bottom: -19px;
-    font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: center;
-  }
-  .swatch[aria-pressed="true"] span { color: var(--text); }
-  .swatch-row { margin-bottom: 30px; }
+  .swatches { display: flex; gap: var(--s1); }
+  .swatch { flex: 1; aspect-ratio: 1 / 1.4; border: 2px solid transparent; border-radius: 8px; position: relative; padding: 0; min-width: 0; }
+  .swatch[aria-pressed="true"] { border-color: var(--ink); }
+  .swatch span { position: absolute; left: 0; right: 0; bottom: -18px; font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: center; }
+  .swatch[aria-pressed="true"] span { color: var(--ink); }
+  .swatch-row { margin-bottom: var(--s5); }
 
-  /* big colour picker for the checker */
-  .picker { display: flex; gap: 12px; }
-  .picker button {
-    flex: 1; background: none; border: none; padding: 0;
-    display: flex; flex-direction: column; align-items: center; gap: 9px;
-  }
-  .picker .blob {
-    width: 100%; aspect-ratio: 1; max-width: 92px; border-radius: 50%;
-    border: 3px solid transparent; transition: transform .15s, box-shadow .15s;
-  }
-  .picker button:hover .blob { transform: scale(1.05); box-shadow: var(--shadow-lift); }
-  .picker button[aria-pressed="true"] .blob { border-color: var(--text); box-shadow: var(--shadow-lift); }
-  .picker b { font-weight: 500; font-size: 13.5px; }
-  .picker i { font-style: normal; font-size: 11px; color: var(--muted); }
+  .picker { display: flex; gap: var(--s3); }
+  .picker button { flex: 1; background: none; border: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: var(--s2); }
+  .picker .blob { width: 100%; aspect-ratio: 1; max-width: 84px; border-radius: 50%; border: 3px solid transparent; transition: transform .15s; }
+  .picker button:hover .blob { transform: scale(1.04); }
+  .picker button[aria-pressed="true"] .blob { border-color: var(--ink); }
+  .picker b { font-weight: 500; font-size: 14px; }
+  .picker i { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
-  .caution { background: #FDF4E4; border-radius: var(--r-sm); padding: 12px 14px; font-size: 13px; color: #8A6B2E; margin-bottom: 20px; }
-  .caution strong { color: #7A5A1C; font-weight: 700; }
+  .caution { background: var(--warn-tint); border-radius: var(--r-sm); padding: 12px 14px; font-size: 13px; color: #7C5A22; margin-bottom: var(--s4); }
+  .caution strong { color: #66491A; font-weight: 500; }
 
-  .modal-actions { display: flex; gap: 8px; margin-top: 26px; }
-  .modal-actions .save {
-    flex: 1; background: var(--good); color: #fff; border: none;
-    border-radius: var(--r-sm); padding: 16px; font-weight: 700;
-  }
-  .modal-actions .cancel {
-    background: none; border: 1px solid var(--line); border-radius: var(--r-sm);
-    padding: 16px 22px; color: var(--muted);
-  }
+  .modal-actions { display: flex; gap: var(--s2); margin-top: var(--s4); }
+  .modal-actions .save { flex: 1; background: var(--good); color: #fff; border: none; border-radius: var(--r-sm); padding: 16px; font-weight: 500; font-size: 15px; }
+  .modal-actions .cancel { background: none; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 16px 22px; color: var(--muted); }
 
   table.rows { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 10px; }
   table.rows th { text-align: left; color: var(--muted); font-weight: 400; padding: 5px 8px 5px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
-  table.rows td { padding: 5px 8px 5px 0; border-bottom: 1px solid var(--surface-2); color: var(--muted); white-space: nowrap; }
-  table.rows td:nth-child(3), table.rows td:nth-child(5) { color: var(--text); }
+  table.rows td { padding: 5px 8px 5px 0; border-bottom: 1px solid var(--line-soft); color: var(--muted); white-space: nowrap; }
+  table.rows td:nth-child(3), table.rows td:nth-child(5) { color: var(--ink); }
   .scroller { overflow-x: auto; }
 
   .toast {
     position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%);
-    background: var(--text); color: #fff; padding: 12px 22px; border-radius: 999px;
-    font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lift); z-index: 90;
+    background: var(--ink); color: #fff; padding: 12px 22px; border-radius: 999px;
+    font-size: 13px; z-index: 90;
   }
   .toast[hidden] { display: none; }
-  .toast .undo {
-    background: none; border: none; padding: 0; margin-left: 14px;
-    color: var(--aqua); font-weight: 700; text-decoration: underline; text-underline-offset: 2px;
-  }
-  .loading { color: var(--muted); font-size: 13px; padding: 40px 0; }
-  .openbanner {
-    background: #FDF4E4; color: #8A6B2E; border-radius: var(--r-sm);
-    padding: 10px 14px; font-size: 12px; margin-bottom: 18px;
-  }
+  .toast .undo { background: none; border: none; padding: 0; margin-left: 14px; color: #A8D8BE; font-weight: 500; text-decoration: underline; }
 
-  .gate {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
-    box-shadow: var(--shadow); padding: 34px 24px 30px; text-align: center; margin-top: 40px;
-  }
-  .gate h2 { font-family: var(--display); font-weight: 500; font-size: 24px; margin: 0 0 6px; }
-  .gate p { color: var(--muted); font-size: 13px; margin: 0 0 22px; }
+  .loading { font-family: var(--mono); color: var(--muted); font-size: 12px; padding: var(--s5) 0; }
+  .gate { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); padding: var(--s5) var(--s4); text-align: center; margin-top: var(--s5); }
+  .gate h2 { font-family: var(--serif); font-weight: 500; font-size: 28px; margin: 0 0 var(--s1); }
+  .gate p { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0 0 var(--s4); }
   .gate .btn { display: flex; justify-content: center; }
-  .gate .err { color: var(--warn); font-size: 12px; margin-top: 16px; }
+  .gate .err { color: var(--warn); }
+  .paused-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); padding: var(--s4); }
+  .paused-card h2 { font-family: var(--serif); font-weight: 500; font-size: 24px; margin: 0 0 var(--s1); }
+  .paused-card p { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 0; }
+  .openbanner { background: var(--warn-tint); color: #7C5A22; border-radius: var(--r-sm); padding: 10px 14px; font-family: var(--mono); font-size: 11px; margin-bottom: var(--s3); }
+  .primary { width: 100%; background: var(--good); color: #fff; border: none; border-radius: var(--r-sm); padding: 16px; font-size: 15px; }
 </style>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -453,7 +404,7 @@
   // not data — those stay local rather than costing a round trip.
 
   function persistUI() {
-    try { localStorage.setItem(UI_KEY, JSON.stringify({ active: state.active, tab: state.tab })); }
+    try { localStorage.setItem(UI_KEY, JSON.stringify({ active: state.active, tab: state.tab, view: state.view })); }
     catch (err) { /* private mode */ }
   }
   function readUI() {
@@ -501,6 +452,7 @@
         var wanted = ui.active && st.tanks.some(function (t) { return t.id === ui.active; });
         st.active = wanted ? ui.active : st.tanks[0].id;
         st.tab = ui.tab || "home";
+        st.view = ui.view || "list";
         return st;
       });
   }
@@ -574,7 +526,7 @@
     });
     if (!tanks.length) tanks.push({ id: "t1", name: "Tank 1", status: "running" });
 
-    return { tanks: tanks, active: tanks[0].id, tab: "home", entries: entries };
+    return { tanks: tanks, active: tanks[0].id, tab: "home", view: "list", entries: entries };
   }
 
   /* ================= helpers ================= */
@@ -872,83 +824,76 @@
     return "Note";
   }
 
-  /* ================= tiles ================= */
+  /* ================= icons ================= */
 
-  var TILES = [
-    { label: "Water change", desc: "50%, dosing, glass, trim", ic: "waves", color: "#2E7FB8", tint: "#E4EFF8", hero: true, open: function () { waterChangeModal(); } },
-    { label: "Drop checker", desc: "Colour and CO₂ window", ic: "checker", color: "#C98A22", tint: "#FBF0DA", hero: true, open: function () { checkerModal(); } },
-    { label: "Water test", desc: "NH₃, NO₂, NO₃", ic: "vial", color: "#3F9C74", tint: "#E4F3EC", open: function () { testModal(); } },
-    { label: "Observation", desc: "Behaviour and notes", ic: "eye", color: "#6C77CE", tint: "#ECEEFA", open: function () { observationModal(); } },
-    { label: "Maintenance", desc: "Filter, pipes, reactor", ic: "sparkle", color: "#3EA5A2", tint: "#E2F3F2", open: function () { maintenanceModal(); } },
-    { label: "Livestock", desc: "Added, lost, molt", ic: "fish", color: "#D46F5B", tint: "#FBEAE5", open: function () { livestockModal(); } },
-    { label: "Plants", desc: "Added or removed", ic: "leaf", color: "#5C9E3C", tint: "#EAF4E2", open: function () { plantModal(); } },
-    { label: "Setting", desc: "Bubble rate, light", ic: "sliders", color: "#7E8794", tint: "#EEF0F3", open: function () { settingModal(); } }
-  ];
-
-  function tileNode(t) {
-    var b = el("button", "tile" + (t.hero ? " hero" : ""));
-    if (t.hero) {
-      b.style.background = t.color;
-      b.appendChild(svgNode(ICONS[t.ic]));
-    } else {
-      var puck = el("div", "puck");
-      puck.style.background = t.tint;
-      puck.style.color = t.color;
-      puck.appendChild(svgNode(ICONS[t.ic]));
-      b.appendChild(puck);
-    }
-    var txt = el("div");
-    txt.appendChild(el("strong", null, t.label));
-    txt.appendChild(el("span", null, t.desc));
-    b.appendChild(txt);
-    b.onclick = t.open;
-    return b;
-  }
-
-  function tileGrid(list) {
-    var g = el("div", "tiles");
-    list.forEach(function (t) { g.appendChild(tileNode(t)); });
-    return g;
-  }
+  var ICONS = {
+    waves: [{ d: "M3 7q2.6-2.4 5.2 0t5.2 0 5.2 0" }, { d: "M3 12q2.6-2.4 5.2 0t5.2 0 5.2 0" }, { d: "M3 17q2.6-2.4 5.2 0t5.2 0 5.2 0" }],
+    vial: [{ d: "M9.5 3v11.4a2.75 2.75 0 0 0 5.5 0V3" }, { d: "M8.3 3h7.9" }, { d: "M9.5 11.2h5.5" }],
+    checker: [{ c: [12, 12, 8.5] }, { d: "M12 8.2c1.7 2.1 2.7 3.3 2.7 4.5a2.7 2.7 0 0 1-5.4 0c0-1.2 1-2.4 2.7-4.5z" }],
+    eye: [{ d: "M2.8 12S6.4 6.2 12 6.2 21.2 12 21.2 12 17.6 17.8 12 17.8 2.8 12 2.8 12z" }, { c: [12, 12, 2.6] }],
+    sparkle: [{ d: "M9.5 3.2l1.5 4.3 4.3 1.5-4.3 1.5-1.5 4.3-1.5-4.3L3.7 9l4.3-1.5z" }, { d: "M17.5 14l.85 2.35 2.35.85-2.35.85-.85 2.35-.85-2.35-2.35-.85 2.35-.85z" }],
+    fish: [{ e: [10.5, 12, 6.8, 4.4] }, { d: "M17.3 12c1.5-1.7 2.7-2.5 3.7-2.5v5c-1 0-2.2-.8-3.7-2.5z" }, { c: [7.2, 10.8, 0.9, true] }],
+    leaf: [{ d: "M5 19.5C5 10.5 11 4 20.2 4c0 9.2-6.2 15.5-15.2 15.5z" }, { d: "M9.2 15C10.8 12.2 14 10 17.4 9" }],
+    sliders: [{ d: "M3 8.5h11" }, { d: "M18.5 8.5H21" }, { d: "M3 15.5h4" }, { d: "M11.5 15.5H21" }, { c: [16.2, 8.5, 2.3] }, { c: [9.2, 15.5, 2.3] }],
+    drop: [{ d: "M12 3.4c3.3 4 5.3 6.6 5.3 8.9a5.3 5.3 0 0 1-10.6 0c0-2.3 2-4.9 5.3-8.9z" }],
+    glass: [{ d: "M5 4h14v11H5z" }, { d: "M8.5 19.5h7" }, { d: "M12 15v4.5" }, { d: "M8 7.5l3 3" }],
+    tank: [{ d: "M4 6h16v13H4z" }, { d: "M4 12.5q4-2.6 8 0t8 0" }, { d: "M4 6h16" }],
+    plus: [{ d: "M12 5v14" }, { d: "M5 12h14" }],
+    clock: [{ c: [12, 12, 8.5] }, { d: "M12 7.5V12l3 1.8" }],
+    book: [{ d: "M4 5.5A2 2 0 0 1 6 4h5v15.5H6a2 2 0 0 0-2 1.5z" }, { d: "M20 5.5A2 2 0 0 0 18 4h-5v15.5h5a2 2 0 0 1 2 1.5z" }]
+  };
 
   /* ================= render ================= */
 
   var TABS = [
-    { id: "home", label: "Home" },
-    { id: "log", label: "Log" },
-    { id: "history", label: "History" },
-    { id: "reference", label: "Reference" }
+    { id: "home", label: "Tanks", ic: "tank" },
+    { id: "log", label: "Log", ic: "plus" },
+    { id: "history", label: "History", ic: "clock" },
+    { id: "reference", label: "Reference", ic: "book" }
   ];
+
+  var LOG_ROWS = [
+    { label: "Water change", desc: "50%, dosing, glass, trim", ic: "waves", open: function () { waterChangeModal(); } },
+    { label: "Drop checker", desc: "Colour and CO\u2082 window", ic: "checker", open: function () { checkerModal(); } },
+    { label: "Observation", desc: "Behaviour and notes", ic: "eye", open: function () { observationModal(); } },
+    { label: "Water test", desc: "Ammonia, nitrite, nitrate", ic: "vial", open: function () { testModal(); } },
+    { label: "Maintenance", desc: "Filter, pipes, reactor", ic: "sparkle", open: function () { maintenanceModal(); } },
+    { label: "Livestock", desc: "Added, lost, molt", ic: "fish", open: function () { livestockModal(); } },
+    { label: "Plants", desc: "Added or removed", ic: "leaf", open: function () { plantModal(); } },
+    { label: "Setting", desc: "Bubble rate, light", ic: "sliders", open: function () { settingModal(); } }
+  ];
+
+  function pageHead(title, sub, right) {
+    var h = el("div", "pagehead");
+    var top = el("div", "top");
+    var left = el("div");
+    left.appendChild(el("h1", null, title));
+    if (sub) left.appendChild(el("div", "sub", sub));
+    top.appendChild(left);
+    if (right) top.appendChild(right);
+    h.appendChild(top);
+    return h;
+  }
+
+  function iconTile(name) {
+    var t = el("div", "icontile");
+    t.appendChild(svgNode(ICONS[name]));
+    return t;
+  }
 
   function render() {
     var app = $("#app");
     app.innerHTML = "";
-    var tank = activeTank();
 
     if (!AUTH_ON) {
-      var warn = el("div", "openbanner");
-      warn.appendChild(document.createTextNode("Sign-in is off — anyone with this URL can write."));
-      app.appendChild(warn);
+      app.appendChild(el("div", "openbanner", "Sign-in is off \u2014 anyone with this URL can write."));
     }
-    app.appendChild(el("p", "eyebrow", "Aquascape log"));
 
-    var tanks = el("div", "tanks");
-    state.tanks.forEach(function (t) {
-      var b = el("button", t.status === "paused" ? "paused" : "", t.name);
-      b.setAttribute("aria-pressed", String(t.id === state.active));
-      b.onclick = function () { state.active = t.id; persistUI(); render(); };
-      tanks.appendChild(b);
-    });
-    var add = el("button", "add", "+");
-    add.setAttribute("aria-label", "Add a tank");
-    add.onclick = addTank;
-    tanks.appendChild(add);
-    app.appendChild(tanks);
-
-    if (state.tab === "log") app.appendChild(tileGrid(TILES));
-    else if (state.tab === "history") renderHistory(app, tank);
-    else if (state.tab === "reference") renderReference(app, tank);
-    else renderHome(app, tank);
+    if (state.tab === "log") renderLog(app);
+    else if (state.tab === "history") renderHistory(app, activeTank());
+    else if (state.tab === "reference") renderReference(app, activeTank());
+    else if (state.view === "tank") renderTank(app, activeTank());
+    else renderTankList(app);
 
     renderTabs();
   }
@@ -958,95 +903,187 @@
     nav.innerHTML = "";
     var inner = el("div", "inner");
     TABS.forEach(function (t) {
-      var b = el("button", null, t.label);
+      var b = el("button");
       if (state.tab === t.id) b.setAttribute("aria-current", "page");
-      b.onclick = function () { state.tab = t.id; persistUI(); render(); };
+      b.appendChild(svgNode(ICONS[t.ic]));
+      b.appendChild(el("span", null, t.label));
+      b.onclick = function () {
+        state.tab = t.id;
+        if (t.id === "home") state.view = "list";
+        persistUI();
+        render();
+      };
       inner.appendChild(b);
     });
     nav.appendChild(inner);
   }
 
-  function renderHome(app, tank) {
+  /* ---- tank list: the home screen ---- */
+
+  function tankSummary(tank) {
+    var d = dues(tank.id);
+    var last = lastEntry(tank.id, function (e) { return e.kind === "water_change"; });
+    var days = last ? daysSince(last.ts) : null;
+    var interval = cadenceOf(tank.id, "cadence_water_change", 7);
+    return {
+      dues: d,
+      days: days,
+      interval: interval,
+      late: days === null || days >= interval,
+      attention: tank.status !== "paused" && d.now.length > 0
+    };
+  }
+
+  function tankRow(tank) {
+    var s = tankSummary(tank);
+    var b = el("button", "rowcard" + (s.attention ? " attention" : ""));
+    b.appendChild(iconTile("tank"));
+
+    var body = el("div", "rowbody");
+    body.appendChild(el("div", "name", tank.name));
+    body.appendChild(el("div", "latin", "ADA 30C"));
+
+    var bits = [];
+    if (tank.status === "paused") bits.push(tank.why || "paused");
+    else {
+      bits.push(s.days === null ? "no water change logged" : s.days + "d since water change");
+      var ck = lastEntry(tank.id, function (e) { return e.kind === "checker"; });
+      if (ck) bits.push("checker " + ck.data.checker);
+    }
+    body.appendChild(el("div", "meta", bits.join(" \u00b7 ")));
+    b.appendChild(body);
+
+    if (tank.status !== "paused" && s.dues.now.length) {
+      var pills = el("div", "pills");
+      pills.appendChild(el("div", "statuspill late", s.dues.now.length + " due"));
+      b.appendChild(pills);
+    }
+
+    if (tank.status !== "paused" && s.days !== null) {
+      var m = el("div", "meter");
+      var fill = el("i", s.late ? "late" : "");
+      fill.style.width = Math.min(s.days / s.interval, 1) * 100 + "%";
+      m.appendChild(fill);
+      b.appendChild(m);
+    }
+
+    b.onclick = function () {
+      state.active = tank.id;
+      state.view = "tank";
+      persistUI();
+      render();
+    };
+    return b;
+  }
+
+  function renderTankList(app) {
+    var add = el("button", "datechip", "+ Tank");
+    add.onclick = addTank;
+    app.appendChild(pageHead("Tanks", state.tanks.length + (state.tanks.length === 1 ? " tank" : " tanks"), add));
+
+    var needs = [], ok = [];
+    state.tanks.forEach(function (t) {
+      (tankSummary(t).attention ? needs : ok).push(t);
+    });
+
+    if (needs.length) {
+      app.appendChild(el("div", "grouplabel", "Needs attention"));
+      needs.forEach(function (t) { app.appendChild(tankRow(t)); });
+    }
+    if (ok.length) {
+      app.appendChild(el("div", "grouplabel", needs.length ? "On track" : "All good"));
+      ok.forEach(function (t) { app.appendChild(tankRow(t)); });
+    }
+  }
+
+  /* ---- single tank ---- */
+
+  function renderTank(app, tank) {
+    var back = el("button", "backlink", "\u2039  Tanks");
+    back.onclick = function () { state.view = "list"; persistUI(); render(); };
+    app.appendChild(back);
+
+    app.appendChild(pageHead(tank.name, tank.status === "paused" ? "Paused" : "ADA 30C \u00b7 " + (netVolume(tank.id) || "\u2014") + " L"));
+
     if (tank.status === "paused") {
       var pc = el("div", "paused-card");
       pc.appendChild(el("h2", null, "Not running"));
-      pc.appendChild(el("p", null, tank.why || "Paused. Logging stays available."));
+      pc.appendChild(el("p", null, tank.why || "Logging stays available."));
       app.appendChild(pc);
-    } else {
-      app.appendChild(meniscusCard(tank));
+      return;
     }
 
-    app.appendChild(tileGrid(TILES.slice(0, 2)));
+    app.appendChild(waterFigure(tank));
 
     var d = dues(tank.id);
-    app.appendChild(dueCard("Due", d.now, tank));
-    if (d.soon.length) app.appendChild(dueCard("Upcoming", d.soon, tank));
+    app.appendChild(listBlock("Due", d.now, "Nothing due."));
+    if (d.soon.length) app.appendChild(listBlock("Upcoming", d.soon, null));
 
-    app.appendChild(recentCard(tank));
+    var recent = tankEntries(tank.id).slice(0, 5);
+    var blk = el("div", "block");
+    blk.appendChild(el("h2", null, "Last logged"));
+    var card = el("div", "card");
+    if (!recent.length) card.appendChild(el("p", "empty", "Nothing yet."));
+    else recent.forEach(function (e) {
+      var row = el("div", "kv");
+      var lft = el("span", null, describe(e));
+      row.appendChild(lft);
+      row.appendChild(el("span", null, shortDate(e.ts)));
+      card.appendChild(row);
+    });
+    blk.appendChild(card);
+    app.appendChild(blk);
   }
 
-  function meniscusCard(tank) {
-    var card = el("div", "meniscus");
+  function waterFigure(tank) {
     var last = lastEntry(tank.id, function (e) { return e.kind === "water_change"; });
     var d = last ? daysSince(last.ts) : null;
     var interval = cadenceOf(tank.id, "cadence_water_change", 7);
     var late = d !== null && d >= interval;
 
-    card.appendChild(el("span", "count", d === null ? "—" : String(d)));
-    card.appendChild(el("div", "caption", d === null ? "no water change logged yet" : "days since water change"));
-
+    var fig = el("div", "waterfig");
     var water = el("div", "water" + (late ? " late" : ""));
-    water.style.height = (d === null ? 0 : Math.min(d / interval, 1) * 56) + "%";
+    water.style.height = (d === null ? 0 : Math.min(d / interval, 1) * 70) + "%";
     water.appendChild(waveSvg(late));
-    card.appendChild(water);
+    fig.appendChild(water);
 
-    var meta = el("div", "fill-meta");
-    meta.appendChild(el("span", null, last ? shortDate(last.ts) + " · " + last.data.percent + "%" : "—"));
-    meta.appendChild(el("span", null, d === null ? "" : late ? "due" : "due in " + (interval - d) + "d"));
-    card.appendChild(meta);
-    return card;
+    fig.appendChild(el("div", "num", d === null ? "\u2014" : String(d)));
+    var cap = el("div", "cap");
+    cap.textContent = d === null ? "no water change logged" :
+      "days since water change \u00b7 " + (late ? "due" : "due in " + (interval - d) + "d");
+    fig.appendChild(cap);
+    return fig;
   }
 
-  function dueCard(title, items, tank) {
-    var card = el("div", "due");
-    card.appendChild(el("h3", null, title));
-    if (!items.length) {
-      card.appendChild(el("p", "clear", tank.status === "paused" ? "Nothing scheduled while paused." : "Nothing due."));
-      return card;
-    }
-    var ul = el("ul");
-    items.forEach(function (it) {
-      var li = el("li", it.late ? "late" : "");
-      li.appendChild(el("span", null, it.label));
-      li.appendChild(el("span", null, it.detail));
-      ul.appendChild(li);
+  function listBlock(title, items, emptyText) {
+    var blk = el("div", "block");
+    blk.appendChild(el("h2", null, title));
+    var card = el("div", "card");
+    if (!items.length) card.appendChild(el("p", "empty", emptyText || "\u2014"));
+    else items.forEach(function (it) {
+      var row = el("div", "kv" + (it.late ? " late" : ""));
+      row.appendChild(el("span", null, it.label));
+      row.appendChild(el("span", null, it.detail));
+      card.appendChild(row);
     });
-    card.appendChild(ul);
-    return card;
+    blk.appendChild(card);
+    return blk;
   }
 
-  function recentCard(tank) {
-    var wrap = el("div", "recent");
-    wrap.appendChild(el("h3", null, "Last logged"));
-    var list = tankEntries(tank.id).slice(0, 4);
-    if (!list.length) {
-      wrap.appendChild(el("p", "clear", "Nothing yet. Start with a water change."));
-      return wrap;
-    }
-    var ol = el("ol");
-    list.forEach(function (e) {
-      var li = el("li");
-      var t = el("time", null, shortDate(e.ts));
-      t.setAttribute("datetime", e.ts);
-      li.appendChild(t);
-      var body = el("div", "body");
-      body.appendChild(el("div", null, describe(e)));
-      if (e.note) body.appendChild(el("div", "note", e.note));
-      li.appendChild(body);
-      ol.appendChild(li);
+  /* ---- log ---- */
+
+  function renderLog(app) {
+    app.appendChild(pageHead("Log", activeTank().name));
+    LOG_ROWS.forEach(function (r) {
+      var b = el("button", "rowcard");
+      b.appendChild(iconTile(r.ic));
+      var body = el("div", "rowbody");
+      body.appendChild(el("div", "name", r.label));
+      body.appendChild(el("div", "rowdesc", r.desc));
+      b.appendChild(body);
+      b.onclick = r.open;
+      app.appendChild(b);
     });
-    wrap.appendChild(ol);
-    return wrap;
   }
 
   /* ---- history ---- */
@@ -1055,8 +1092,8 @@
     { id: "all", label: "All", kinds: null },
     { id: "wc", label: "Water change", kinds: ["water_change", "dose"] },
     { id: "checker", label: "Drop checker", kinds: ["checker"] },
-    { id: "test", label: "Test", kinds: ["test"] },
     { id: "obs", label: "Observation", kinds: ["observation", "note"] },
+    { id: "test", label: "Test", kinds: ["test"] },
     { id: "maint", label: "Maintenance", kinds: ["maintenance"] },
     { id: "life", label: "Livestock", kinds: ["livestock"] },
     { id: "plant", label: "Plants", kinds: ["plant"] },
@@ -1064,7 +1101,9 @@
   ];
 
   function renderHistory(app, tank) {
-    var bar = el("div", "search");
+    app.appendChild(pageHead("History", tank.name));
+
+    var bar = el("div", "searchbar");
     var input = document.createElement("input");
     input.type = "text";
     input.placeholder = "Search entries";
@@ -1073,13 +1112,13 @@
       ui.search = input.value;
       var pos = input.selectionStart;
       render();
-      var again = $("#app .search input");
+      var again = $("#app .searchbar input");
       if (again) { again.focus(); again.setSelectionRange(pos, pos); }
     };
     bar.appendChild(input);
     app.appendChild(bar);
 
-    var pills = el("div", "pills");
+    var pills = el("div", "pillrow");
     FILTERS.forEach(function (f) {
       var b = el("button", null, f.label);
       b.setAttribute("aria-pressed", String(ui.filter === f.id));
@@ -1096,32 +1135,29 @@
       return (describe(e) + " " + (e.note || "")).toLowerCase().indexOf(q) !== -1;
     });
 
-    var wrap = el("div", "history");
     if (!list.length) {
-      wrap.appendChild(el("p", "clear", q ? "No entries match “" + ui.search + "”." : "Nothing logged for " + tank.name + " yet."));
-      app.appendChild(wrap);
+      app.appendChild(el("p", "empty", q ? "No entries match \u201c" + ui.search + "\u201d." : "Nothing logged yet."));
       return;
     }
 
-    var day = null, ul = null;
+    var day = null, card = null;
     list.forEach(function (e) {
       var dt = new Date(e.ts), key = dt.toDateString();
       if (key !== day) {
         day = key;
         var ago = daysSince(e.ts);
-        wrap.appendChild(el("h3", null,
+        app.appendChild(el("div", "daylabel",
           dt.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
-          (ago === 0 ? " · today" : ago === 1 ? " · yesterday" : " · " + ago + "d ago")));
-        ul = el("ul");
-        wrap.appendChild(ul);
+          (ago === 0 ? " \u00b7 today" : ago === 1 ? " \u00b7 yesterday" : " \u00b7 " + ago + "d ago")));
+        card = el("div", "card");
+        app.appendChild(card);
       }
-      var li = el("li");
-      li.appendChild(el("div", null, describe(e)));
-      if (e.note) li.appendChild(el("div", "note", e.note));
-      li.appendChild(el("div", "time", dt.toTimeString().slice(0, 5)));
-      ul.appendChild(li);
+      var row = el("div", "entry");
+      row.appendChild(el("div", null, describe(e)));
+      if (e.note) row.appendChild(el("div", "note", e.note));
+      row.appendChild(el("div", "when", dt.toTimeString().slice(0, 5)));
+      card.appendChild(row);
     });
-    app.appendChild(wrap);
 
     var link = el("button", "sheetlink", "See what goes to the sheet");
     link.style.marginTop = "24px";
@@ -1131,70 +1167,76 @@
 
   /* ---- reference ---- */
 
-  function refCard(title) {
-    var c = el("div", "ref");
-    c.appendChild(el("h3", null, title));
-    return c;
+  function refBlock(title) {
+    var blk = el("div", "block");
+    blk.appendChild(el("h2", null, title));
+    var card = el("div", "card");
+    blk.appendChild(card);
+    blk.card = card;
+    return blk;
   }
-  function refRow(card, left, right) {
-    var r = el("div", "row");
+  function kv(card, left, right, late) {
+    var r = el("div", "kv" + (late ? " late" : ""));
     r.appendChild(el("span", null, left));
     r.appendChild(el("span", null, right));
     card.appendChild(r);
   }
 
   function renderReference(app, tank) {
+    app.appendChild(pageHead("Reference", tank.name));
+
     var sch = schedule(tank.id);
-    var s1 = refCard("Schedule");
-    refRow(s1, "CO₂", sch.co2On && sch.co2Off ? sch.co2On + " – " + sch.co2Off + " · " + span(sch.co2On, sch.co2Off) + "h" : "not set");
-    refRow(s1, "Light", sch.lightOn && sch.lightOff ? sch.lightOn + " – " + sch.lightOff + " · " + span(sch.lightOn, sch.lightOff) + "h" : "not set");
-    s1.appendChild(el("p", "empty", "Set while logging a water change or checker reading."));
-    app.appendChild(s1);
-
-    var s2 = refCard("Current settings");
-    SETTINGS.forEach(function (s) {
-      var last = lastEntry(tank.id, function (e) { return e.kind === "setting" && e.data.setting === s.id; });
-      refRow(s2, s.label, last ? last.data.value + " " + s.unit + " · " + daysSince(last.ts) + "d" : "not logged");
+    var b1 = refBlock("Schedule");
+    var g = el("div", "grid2");
+    [["CO\u2082", sch.co2On && sch.co2Off ? sch.co2On + "\u2013" + sch.co2Off : "not set"],
+     ["Light", sch.lightOn && sch.lightOff ? sch.lightOn + "\u2013" + sch.lightOff : "not set"],
+     ["Photoperiod", sch.lightOn && sch.lightOff ? span(sch.lightOn, sch.lightOff) + " h" : "\u2014"],
+     ["Bubble rate", settingValue(tank.id, "bubble_rate", null) ? settingValue(tank.id, "bubble_rate", null) + " bps" : "not set"],
+     ["Light intensity", settingValue(tank.id, "light_intensity", null) ? settingValue(tank.id, "light_intensity", null) + " %" : "not set"],
+     ["Net volume", netVolume(tank.id) ? netVolume(tank.id) + " L" : "not measured"]
+    ].forEach(function (p) {
+      var cell = el("div");
+      cell.appendChild(el("span", "lab", p[0]));
+      cell.appendChild(el("div", "val", String(p[1])));
+      g.appendChild(cell);
     });
-    var vol = netVolume(tank.id);
-    refRow(s2, "Net water volume", vol ? vol + " L" : "not measured");
-    if (!vol) s2.appendChild(el("p", "empty", "Log the litres you put back on a water change and this fills itself in."));
-    app.appendChild(s2);
+    b1.card.appendChild(g);
+    app.appendChild(b1);
 
-    var s3 = refCard("Livestock");
+    var b2 = refBlock("Livestock");
     var lr = rosterOf(tank.id, "livestock");
-    if (lr.length) lr.forEach(function (x) { refRow(s3, pretty(x.species), String(x.count)); });
-    else s3.appendChild(el("p", "empty", "Fills in as you log additions and losses."));
-    app.appendChild(s3);
+    if (lr.length) lr.forEach(function (x) { kv(b2.card, pretty(x.species), String(x.count)); });
+    else b2.card.appendChild(el("p", "empty", "Fills in as you log additions and losses."));
+    app.appendChild(b2);
 
-    var s4 = refCard("Plants");
+    var b3 = refBlock("Plants");
     var pr = rosterOf(tank.id, "plant");
     if (pr.length) pr.forEach(function (x) {
-      var lastTrim = lastEntry(tank.id, function (e) { return e.kind === "plant" && e.data.event === "trim" && e.data.species === x.species; });
-      refRow(s4, pretty(x.species), lastTrim ? "trimmed " + daysSince(lastTrim.ts) + "d ago" : "no trim logged");
+      var t = lastEntry(tank.id, function (e) { return e.kind === "plant" && e.data.event === "trim" && e.data.species === x.species; });
+      kv(b3.card, pretty(x.species), t ? "trimmed " + daysSince(t.ts) + "d ago" : "no trim logged");
     });
-    else s4.appendChild(el("p", "empty", "Add plants to get trim buttons on the water change screen."));
-    app.appendChild(s4);
+    else b3.card.appendChild(el("p", "empty", "Add plants to get trim buttons on the water change screen."));
+    app.appendChild(b3);
 
-    var s5 = refCard("Last test");
-    var lt = lastEntry(tank.id, function (e) { return e.kind === "test"; });
-    if (lt) refRow(s5, describe(lt), daysSince(lt.ts) + "d ago");
-    else s5.appendChild(el("p", "empty", "No test logged yet."));
-    app.appendChild(s5);
-
-    var s6 = refCard("Cadence");
-    CADENCE.forEach(function (c) { refRow(s6, c.label, "every " + cadenceOf(tank.id, c.key, c.def) + " days"); });
-    refRow(s6, "Filter & pipes", "Jan · Apr · Jul · Oct");
-    refRow(s6, "Reactor", "Jan · Jul");
+    var b4 = refBlock("Cadence");
+    CADENCE.forEach(function (c) { kv(b4.card, c.label, "every " + cadenceOf(tank.id, c.key, c.def) + " days"); });
+    kv(b4.card, "Filter & pipes", "Jan \u00b7 Apr \u00b7 Jul \u00b7 Oct");
+    kv(b4.card, "Reactor", "Jan \u00b7 Jul");
     var ce = el("button", "sheetlink", "Edit intervals");
-    ce.style.marginTop = "12px";
+    ce.style.marginTop = "16px";
     ce.onclick = cadenceModal;
-    s6.appendChild(ce);
-    app.appendChild(s6);
+    b4.card.appendChild(ce);
+    app.appendChild(b4);
 
-    var s7 = refCard("API colour card");
+    var b5 = refBlock("Last test");
+    var lt = lastEntry(tank.id, function (e) { return e.kind === "test"; });
+    if (lt) kv(b5.card, describe(lt), daysSince(lt.ts) + "d ago");
+    else b5.card.appendChild(el("p", "empty", "No test logged yet."));
+    app.appendChild(b5);
+
+    var b6 = refBlock("API colour card");
     ["ammonia", "nitrite", "nitrate"].forEach(function (k) {
-      s7.appendChild(el("div", "scale-label", k + " (ppm)"));
+      b6.card.appendChild(el("span", "lab", k + " (ppm)"));
       var row = el("div", "swatches");
       API[k].steps.forEach(function (step, i) {
         var sw = el("div", "swatch");
@@ -1204,9 +1246,9 @@
       });
       var w = el("div", "swatch-row");
       w.appendChild(row);
-      s7.appendChild(w);
+      b6.card.appendChild(w);
     });
-    app.appendChild(s7);
+    app.appendChild(b6);
   }
 
   /* ================= modal plumbing ================= */
@@ -1854,6 +1896,7 @@
       var id = "t" + Date.now().toString(36).slice(-5);
       state.tanks.push({ id: id, name: name, status: "running" });
       state.active = id;
+      state.view = "tank";
       persistUI();
       commit([{ id: uid(), ts: new Date().toISOString(), tank: id, kind: "setting",
         data: { setting: "tank_name", value: name, unit: "" }, note: "" }], name + " added.");
